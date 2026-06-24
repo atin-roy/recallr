@@ -1,0 +1,19 @@
+* text=auto eol=lf
+
+# Windows scripts should use CRLF
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# Unix scripts should use LF
+*.sh text eol=lf
+mvnw text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.jar binary
