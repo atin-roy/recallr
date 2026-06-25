@@ -7,7 +7,7 @@ import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.Set;
-// TODO : Add Roles to Users
+
 @Entity
 @Table(name = "users")
 @Getter
