@@ -27,7 +27,20 @@ public class UserProvider extends BaseEntity {
     private IdentityProvider provider; // LOCAL, GOOGLE, GITHUB, FACEBOOK
 
     /**
-     * For OAuth2 (Google/GitHub): Stores the unique provider user ID.
+     * Unique identifier assigned by the identity provider for this user.
+     *
+     * <p>For external OAuth providers such as Google or GitHub, this stores the
+     * provider-specific user ID returned by that provider.</p>
+     *
+     * <p>For the LOCAL provider, there is no external identity provider ID.
+     * In that case, we store the user's normalized email address as the
+     * provider ID. This keeps the {@code (provider, providerId)} uniqueness
+     * constraint consistent across all provider types and prevents duplicate
+     * LOCAL accounts for the same email.</p>
+     *
+     * <p>LOCAL provider IDs should therefore always be written using the same
+     * normalization rule used during registration: lowercase and stripped of
+     * surrounding whitespace.</p>
      */
     @Column(name = "provider_id", nullable = false)
     private String providerId;

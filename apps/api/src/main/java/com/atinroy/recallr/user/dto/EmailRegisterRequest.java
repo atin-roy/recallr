@@ -1,4 +1,4 @@
-package com.atinroy.recallr.auth.dto;
+package com.atinroy.recallr.user.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

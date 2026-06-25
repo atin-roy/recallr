@@ -1,7 +1,7 @@
-package com.atinroy.recallr.auth.mapper;
+package com.atinroy.recallr.user.mapper;
 
-import com.atinroy.recallr.auth.dto.EmailRegisterRequest;
-import com.atinroy.recallr.auth.dto.UserResponse;
+import com.atinroy.recallr.user.dto.EmailRegisterRequest;
+import com.atinroy.recallr.user.dto.UserResponse;
 import com.atinroy.recallr.user.IdentityProvider;
 import com.atinroy.recallr.user.User;
 import com.atinroy.recallr.user.UserProvider;
@@ -24,15 +24,16 @@ public class UserMapper {
 
     public static User toEntity(EmailRegisterRequest userRequest, String passwordHash) {
         User user = new User();
+        String normalizedEmail = userRequest.email().toLowerCase().strip();
 
         UserProvider userProvider = new UserProvider();
         userProvider.setProvider(IdentityProvider.LOCAL);
         userProvider.setUser(user);
         userProvider.setPasswordHash(passwordHash);
-        userProvider.setProviderId(userRequest.email().toLowerCase().strip());
+        userProvider.setProviderId(normalizedEmail);
 
-        user.setEmail(userRequest.email());
-        user.setProviders(new HashSet<>(Set.of(userProvider)));
+        user.setEmail(normalizedEmail);
+        user.addProvider(userProvider);
 
 
         return user;

@@ -8,28 +8,41 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.UUID;
 
-
 @Getter
 public class CustomUserDetails implements UserDetails {
-    private final User user;
+
+    private final UUID id;
+    private final String email;
     private final String password;
+    private final Collection<? extends GrantedAuthority> authorities;
 
-    public CustomUserDetails(User user, String password) {
-        this.user = user;
+    public CustomUserDetails(
+            UUID id,
+            String email,
+            String password,
+            Collection<? extends GrantedAuthority> authorities
+    ) {
+        this.id = id;
+        this.email = email;
         this.password = password;
+        this.authorities = authorities;
     }
 
-    public UUID getId() {
-        return user.getId();
-    }
-
-    public String getEmail() {
-        return user.getEmail();
+    public static CustomUserDetails from(User user, String password) {
+        return new CustomUserDetails(
+                user.getId(),
+                user.getEmail(),
+                password,
+                user.getRoles()
+                        .stream()
+                        .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
+                        .toList()
+        );
     }
 
     @Override
     public String getUsername() {
-        return getEmail();
+        return email;
     }
 
     @Override
@@ -39,9 +52,6 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return user.getRoles()
-                .stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
-                .toList();
+        return authorities;
     }
 }

@@ -1,4 +1,4 @@
-package com.atinroy.recallr.auth.dto;
+package com.atinroy.recallr.user.dto;
 
 import com.atinroy.recallr.user.Role;
 

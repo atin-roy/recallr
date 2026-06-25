@@ -11,8 +11,8 @@ import java.util.Set;
 @Entity
 @Table(name = "users")
 @Getter
-@Setter
 public class User extends BaseEntity {
+    @Setter
     @Column(nullable = false, unique = true)
     private String email;
 
@@ -27,4 +27,14 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     private Set<Role> roles = new HashSet<>(Set.of(Role.USER));
+
+    public void addProvider(UserProvider provider) {
+        provider.setUser(this); // maintain both sides of the relationship
+        this.providers.add(provider);
+    }
+
+    public void removeProvider(UserProvider provider) {
+        this.providers.remove(provider);
+        provider.setUser(null);
+    }
 }
