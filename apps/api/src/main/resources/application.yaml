@@ -3,3 +3,8 @@ spring:
     name: api
   jmx:
     enabled: false
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
