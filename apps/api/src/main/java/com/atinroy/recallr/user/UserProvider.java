@@ -27,9 +27,11 @@ public class UserProvider extends BaseEntity {
     private IdentityProvider provider; // LOCAL, GOOGLE, GITHUB, FACEBOOK
 
     /**
-     * For LOCAL: Stores the BCrypt hashed password.
      * For OAuth2 (Google/GitHub): Stores the unique provider user ID.
      */
     @Column(name = "provider_id", nullable = false)
     private String providerId;
+
+    @Column(name = "password_hash")
+    private String passwordHash;
 }

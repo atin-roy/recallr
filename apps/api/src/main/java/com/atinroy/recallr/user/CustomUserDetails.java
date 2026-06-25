@@ -29,11 +29,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        String email = getEmail();
-        if (email == null) {
-            throw new IllegalStateException("Cannot get username because email is null");
-        }
-        return email;
+        return getEmail();
     }
 
     @Override

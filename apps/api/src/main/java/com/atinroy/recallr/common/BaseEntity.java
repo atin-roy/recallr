@@ -38,7 +38,6 @@ import java.util.UUID;
  */
 @MappedSuperclass
 @Getter
-@Setter
 public abstract class BaseEntity implements Persistable<UUID> {
 
     @Id
