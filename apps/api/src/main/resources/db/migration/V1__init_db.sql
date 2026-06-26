@@ -1,6 +1,6 @@
 CREATE TABLE users (
                        id          UUID PRIMARY KEY,
-                       email       VARCHAR(255) NOT NULL UNIQUE,
+                       email       VARCHAR(255) UNIQUE,
                        created_at  TIMESTAMP WITH TIME ZONE NOT NULL,
                        updated_at  TIMESTAMP WITH TIME ZONE NOT NULL
 );

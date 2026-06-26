@@ -10,6 +10,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
@@ -27,6 +29,28 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .findFirst()
                 .map(UserProvider::getPasswordHash)
                 .orElseThrow(() -> new UsernameNotFoundException("No local login for this account"));
+        return CustomUserDetails.from(user, password);
+    }
+
+    /**
+     * Loads a user by their internal UUID. Used by the JWT authentication filter
+     * where the token {@code sub} claim is the user's UUID, not their email.
+     *
+     * <p>This keeps the JWT validation path decoupled from email, which allows
+     * OAuth users without an email address to be authenticated correctly.
+     *
+     * @param id the user's internal UUID
+     * @return the populated {@link UserDetails} principal
+     * @throws UsernameNotFoundException if no user exists with the given id
+     */
+    public UserDetails loadUserById(@NonNull UUID id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + id));
+        String password = user.getProviders().stream()
+                .filter(p -> p.getProvider() == IdentityProvider.LOCAL)
+                .findFirst()
+                .map(UserProvider::getPasswordHash)
+                .orElse(null); // OAuth-only users have no password hash
         return CustomUserDetails.from(user, password);
     }
 }

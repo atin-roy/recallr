@@ -37,7 +37,6 @@ public class JwtService {
                 .subject(principal.getUsername())
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plusSeconds(jwtExpirationSeconds)))
-                .claim("userId", principal.getId().toString())
                 .signWith(signingKey)
                 .compact();
     }

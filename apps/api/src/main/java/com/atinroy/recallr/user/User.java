@@ -13,7 +13,7 @@ import java.util.Set;
 @Getter
 public class User extends BaseEntity {
     @Setter
-    @Column(nullable = false, unique = true)
+    @Column(unique = true)
     private String email;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
