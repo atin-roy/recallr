@@ -12,3 +12,6 @@ spring:
       ddl-auto: validate
   flyway:
     enabled: true
+  mvc:
+    servlet:
+      path: /api/v1
