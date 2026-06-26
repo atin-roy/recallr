@@ -1,6 +1,10 @@
 spring:
   application:
     name: api
+    security:
+      jwt:
+        secret: "zM4y6Q1maI/mvNG7N3/pJyGR+2G0+pH/EbhEgZgX6AA="
+        expiration: 3600
   jmx:
     enabled: false
   jpa:

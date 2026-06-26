@@ -1,22 +1,27 @@
-package com.atinroy.recallr.user;
+package com.atinroy.recallr.auth;
 
-import com.atinroy.recallr.user.mapper.UserMapper;
-import com.atinroy.recallr.user.dto.EmailRegisterRequest;
+import com.atinroy.recallr.auth.dto.EmailRegisterRequest;
+import com.atinroy.recallr.user.*;
 import com.atinroy.recallr.user.dto.UserResponse;
-import jdk.jshell.spi.ExecutionControl;
+import com.atinroy.recallr.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class AuthService {
+
     private final UserRepository userRepository;
+    private final UserProviderRepository userProviderRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
     @Transactional
-    public UserResponse createUser(EmailRegisterRequest userRequest) {
+    public UserResponse register(EmailRegisterRequest userRequest) {
         if (userRepository.existsByEmail(userRequest.email())) {
             throw new EmailAlreadyExistsException("Email already exists");
         }

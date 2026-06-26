@@ -1,12 +1,11 @@
 package com.atinroy.recallr.user.mapper;
 
-import com.atinroy.recallr.user.dto.EmailRegisterRequest;
+import com.atinroy.recallr.auth.dto.EmailRegisterRequest;
 import com.atinroy.recallr.user.dto.UserResponse;
 import com.atinroy.recallr.user.IdentityProvider;
 import com.atinroy.recallr.user.User;
 import com.atinroy.recallr.user.UserProvider;
 
-import java.util.HashSet;
 import java.util.Set;
 
 public class UserMapper {
