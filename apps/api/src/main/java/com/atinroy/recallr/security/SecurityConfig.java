@@ -1,5 +1,6 @@
 package com.atinroy.recallr.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,19 +18,25 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.time.Instant;
+import java.util.Map;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomUserDetailsService userDetailsService;
+    private final ObjectMapper objectMapper;
 
     public SecurityConfig(
             JwtAuthenticationFilter jwtAuthenticationFilter,
-            CustomUserDetailsService userDetailsService
+            CustomUserDetailsService userDetailsService,
+            ObjectMapper objectMapper
     ) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.userDetailsService = userDetailsService;
+        this.objectMapper = objectMapper;
     }
 
     @Bean
@@ -51,8 +58,14 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) -> {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                            response.setContentType("application/json");
-                            response.getWriter().write("{\"error\": \"Unauthorized\", \"message\": \"" + authException.getMessage() + "\"}");
+                            response.setContentType("application/json;charset=UTF-8");
+                            Map<String, Object> body = Map.of(
+                                    "timestamp", Instant.now().toString(),
+                                    "status", HttpServletResponse.SC_UNAUTHORIZED,
+                                    "error", "Unauthorized",
+                                    "message", "Authentication required"
+                            );
+                            response.getWriter().write(objectMapper.writeValueAsString(body));
                         })
                 )
                 .build();

@@ -5,7 +5,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -66,9 +65,7 @@ public class JwtService {
     }
 
     public boolean isTokenValid(Claims claims, UserDetails userDetails) {
-        String username = claims.getSubject();
-        boolean usernameMatches = username.equals(userDetails.getUsername());
-        boolean notExpired = claims.getExpiration().after(Date.from(Instant.now()));
-        return usernameMatches && notExpired;
+        // Expiry is enforced by extractAllClaims (parseSignedClaims throws ExpiredJwtException).
+        return claims.getSubject().equals(userDetails.getUsername());
     }
 }

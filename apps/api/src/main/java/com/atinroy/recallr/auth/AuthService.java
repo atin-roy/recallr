@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +40,7 @@ public class AuthService {
         return UserMapper.toResponse(user);
     }
 
+    @Transactional
     public LoginResponse login(LoginRequest request) {
         // Throws AuthenticationException (→ 401) if credentials are wrong
         Authentication authentication = authenticationManager.authenticate(
@@ -66,8 +66,7 @@ public class AuthService {
     public LoginResponse refreshToken(String token) {
         RefreshToken refreshToken = refreshTokenService.getRefreshToken(token);
 
-        String userId = jwtService.extractUsername(token);
-        UUID uuid = UUID.fromString(userId);
+        UUID uuid = refreshToken.getUserId();
         CustomUserDetails principal = (CustomUserDetails) customUserDetailsService.loadUserById(uuid);
 
         refreshTokenService.revokeToken(refreshToken);

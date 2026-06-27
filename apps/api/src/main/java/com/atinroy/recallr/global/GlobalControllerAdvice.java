@@ -3,13 +3,11 @@ package com.atinroy.recallr.global;
 import com.atinroy.recallr.auth.InvalidTokenException;
 import com.atinroy.recallr.user.EmailAlreadyExistsException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import org.springframework.security.core.AuthenticationException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,16 +34,8 @@ public class GlobalControllerAdvice {
         return new ResponseEntity<>(errorBody(HttpStatus.UNAUTHORIZED, e.getMessage()), HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<Map<String, Object>> handleBadCredentials(BadCredentialsException e) {
-        return new ResponseEntity<>(errorBody(HttpStatus.UNAUTHORIZED, e.getMessage()), HttpStatus.UNAUTHORIZED);
-    }
-
     @ExceptionHandler(AuthenticationException.class)
-    public ProblemDetail handleAuthenticationFailure(AuthenticationException e) {
-        ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED,
-                "Authentication failed");
-        detail.setTitle("Unauthorized");
-        return detail;
+    public ResponseEntity<Map<String, Object>> handleAuthenticationFailure(AuthenticationException e) {
+        return new ResponseEntity<>(errorBody(HttpStatus.UNAUTHORIZED, "Authentication failed"), HttpStatus.UNAUTHORIZED);
     }
 }
