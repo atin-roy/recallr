@@ -2,6 +2,7 @@ package com.atinroy.recallr.auth;
 
 import com.atinroy.recallr.auth.dto.LoginResponse;
 import com.atinroy.recallr.auth.dto.LoginRequest;
+import com.atinroy.recallr.auth.dto.RefreshRequest;
 import com.atinroy.recallr.security.CustomUserDetails;
 import com.atinroy.recallr.security.JwtAuthenticationFilter;
 import com.atinroy.recallr.auth.dto.EmailRegisterRequest;
@@ -50,5 +51,10 @@ public class AuthController {
     @GetMapping("/me")
     public UserResponse me(@AuthenticationPrincipal CustomUserDetails principal) {
         return UserMapper.toResponse(principal);
+    }
+
+    @PostMapping("/refresh")
+    public LoginResponse refresh(@Valid @RequestBody RefreshRequest refreshRequest) {
+        return authService.refreshToken(refreshRequest.refreshToken());
     }
 }

@@ -13,7 +13,28 @@ http:
         "email": "user@example.com",
         "password": "password"
       }
-  auth: inherit
+  auth:
+    type: bearer
+    token: ""
+
+runtime:
+  actions:
+    - type: set-variable
+      phase: after-response
+      selector:
+        expression: res.body.accessToken
+        method: jsonq
+      variable:
+        name: accessToken
+        scope: runtime
+    - type: set-variable
+      phase: after-response
+      selector:
+        expression: res.body.responseToken
+        method: jsonq
+      variable:
+        name: refreshToken
+        scope: runtime
 
 settings:
   encodeUrl: true
