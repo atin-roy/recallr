@@ -23,22 +23,25 @@ public class JwtService {
 
     public JwtService(
             @Value("${spring.application.security.jwt.secret}") String secret,
-            @Value("${spring.application.security.jwt.expiration-seconds}") long jwtExpirationSeconds
+            @Value("${spring.application.security.jwt.expiration-seconds.access-token}") long jwtExpirationSeconds
     ) {
         byte[] keyBytes = Decoders.BASE64.decode(secret);
         this.signingKey = Keys.hmacShaKeyFor(keyBytes);
         this.jwtExpirationSeconds = jwtExpirationSeconds;
     }
 
-    public String generateToken(CustomUserDetails principal) {
-        Instant now = Instant.now();
-
+    public String buildToken(String username, Date issuedAt, Date expiresAt) {
         return Jwts.builder()
-                .subject(principal.getUsername())
-                .issuedAt(Date.from(now))
-                .expiration(Date.from(now.plusSeconds(jwtExpirationSeconds)))
+                .subject(username)
+                .issuedAt(issuedAt)
+                .expiration(expiresAt)
                 .signWith(signingKey)
                 .compact();
+    }
+
+    public String generateAccessToken(CustomUserDetails principal) {
+        Instant now = Instant.now();
+        return buildToken(principal.getUsername(), Date.from(now), Date.from(now.plusSeconds(jwtExpirationSeconds)));
     }
 
     private Claims extractAllClaims(String token) {

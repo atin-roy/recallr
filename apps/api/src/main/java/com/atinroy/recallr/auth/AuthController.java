@@ -1,6 +1,6 @@
 package com.atinroy.recallr.auth;
 
-import com.atinroy.recallr.auth.dto.AuthResponse;
+import com.atinroy.recallr.auth.dto.LoginResponse;
 import com.atinroy.recallr.auth.dto.LoginRequest;
 import com.atinroy.recallr.security.CustomUserDetails;
 import com.atinroy.recallr.security.JwtAuthenticationFilter;
@@ -24,7 +24,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public AuthResponse login(@Valid @RequestBody LoginRequest request) {
+    public LoginResponse login(@Valid @RequestBody LoginRequest request) {
         return authService.login(request);
     }
 
