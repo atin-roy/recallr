@@ -26,5 +26,5 @@ export async function apiFetch<T>(
     throw new Error(message);
   }
 
-  return res.json();
+  return res.json() as Promise<T>;
 }

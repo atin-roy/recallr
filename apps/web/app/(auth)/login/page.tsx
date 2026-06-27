@@ -9,6 +9,11 @@ import AuthCard from "@/components/auth/AuthCard";
 import TextField from "@/components/auth/TextField";
 import PasswordField from "@/components/auth/PasswordField";
 import { apiFetch } from "@/lib/api";
+import { setAccessToken } from "@/lib/accessToken";
+
+type LoginResponse = {
+  accessToken: string;
+};
 
 export default function LoginPage() {
   const router = useRouter();
@@ -24,10 +29,13 @@ export default function LoginPage() {
     if (typeof email !== "string" || typeof password !== "string") return;
 
     try {
-      await apiFetch("/auth/login", {
+      const data = await apiFetch<LoginResponse>("/auth/login", {
         method: "POST",
         body: JSON.stringify({ email, password }),
       });
+
+      setAccessToken(data.accessToken);
+
       router.push("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -83,7 +91,7 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            className="mt-2 w-full rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-violet-500/25 transition duration-200 hover:from-violet-500 hover:to-indigo-500 hover:shadow-violet-500/40 active:scale-[0.98]"
+            className="mt-2 w-full rounded-lg bg-linear-to-r from-violet-600 to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-violet-500/25 transition duration-200 hover:from-violet-500 hover:to-indigo-500 hover:shadow-violet-500/40 active:scale-[0.98]"
           >
             Sign in
           </button>
