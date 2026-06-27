@@ -1,0 +1,43 @@
+info:
+  name: Login User via Email
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: http://localhost:8080/api/v1/auth/login
+  body:
+    type: json
+    data: |-
+      {
+        "email": "user@example.com",
+        "password": "password"
+      }
+  auth:
+    type: bearer
+    token: ""
+
+runtime:
+  actions:
+    - type: set-variable
+      phase: after-response
+      selector:
+        expression: res.body.accessToken
+        method: jsonq
+      variable:
+        name: accessToken
+        scope: runtime
+    - type: set-variable
+      phase: after-response
+      selector:
+        expression: res.body.responseToken
+        method: jsonq
+      variable:
+        name: refreshToken
+        scope: runtime
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
