@@ -11,6 +11,7 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.Date;
 import java.util.HexFormat;
+import java.util.Optional;
 
 @Service
 public class RefreshTokenService {
@@ -44,7 +45,8 @@ public class RefreshTokenService {
         String token = jwtService.buildToken(
                 principal.getUsername(),
                 Date.from(now),
-                Date.from(now.plusSeconds(refreshTokenExpirationSeconds))
+                Date.from(now.plusSeconds(refreshTokenExpirationSeconds)),
+                "refresh_token"
         );
 
         RefreshToken refreshToken = new RefreshToken();
@@ -59,25 +61,28 @@ public class RefreshTokenService {
     }
 
     @Transactional
-    public void revokeToken(String token) {
-        RefreshToken refreshToken = getRefreshToken(token);
+    public void revokeToken(RefreshToken refreshToken) {
         refreshToken.setRevoked(true);
         refreshTokenRepository.save(refreshToken);
     }
 
-    public RefreshToken getRefreshToken(String token) {
-        return refreshTokenRepository
-                .findByTokenHash(hash(token))
-                .orElseThrow(() -> new InvalidTokenException("Invalid refresh token"));
-    }
-
     @Transactional
-    public void deleteToken(String token) {
-        refreshTokenRepository.delete(getRefreshToken(token));
-    }
+    public RefreshToken getRefreshToken(String token) {
+        Optional<RefreshToken> refreshToken = refreshTokenRepository.findByTokenHash(hash(token));
 
-    public boolean isTokenValid(String token) {
-        RefreshToken refreshToken = getRefreshToken(token);
-        return !refreshToken.isRevoked() && Instant.now().isBefore(refreshToken.getExpiresAt());
+        if (refreshToken.isEmpty()) {
+            throw new InvalidTokenException("Invalid refresh token");
+        }
+
+        if (refreshToken.get().isRevoked())  {
+            refreshTokenRepository.deleteAllByUserId(refreshToken.get().getUserId());
+            throw new InvalidTokenException("Invalid refresh token");
+        }
+
+        if (Instant.now().isAfter(refreshToken.get().getExpiresAt())) {
+            throw new InvalidTokenException("Refresh token has expired");
+        }
+
+        return refreshToken.get();
     }
 }

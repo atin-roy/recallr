@@ -1,5 +1,5 @@
 info:
-  name: Register User
+  name: Register User via Email
   type: http
   seq: 1
 

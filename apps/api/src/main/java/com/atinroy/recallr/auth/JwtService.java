@@ -30,21 +30,22 @@ public class JwtService {
         this.jwtExpirationSeconds = jwtExpirationSeconds;
     }
 
-    public String buildToken(String username, Date issuedAt, Date expiresAt) {
+    public String buildToken(String subject, Date issuedAt, Date expiresAt, String tokenType) {
         return Jwts.builder()
-                .subject(username)
+                .subject(subject)
                 .issuedAt(issuedAt)
                 .expiration(expiresAt)
+                .claim("token_type", tokenType)
                 .signWith(signingKey)
                 .compact();
     }
 
     public String generateAccessToken(CustomUserDetails principal) {
         Instant now = Instant.now();
-        return buildToken(principal.getUsername(), Date.from(now), Date.from(now.plusSeconds(jwtExpirationSeconds)));
+        return buildToken(principal.getUsername(), Date.from(now), Date.from(now.plusSeconds(jwtExpirationSeconds)), "access_token");
     }
 
-    private Claims extractAllClaims(String token) {
+    public Claims extractAllClaims(String token) {
         return Jwts.parser()
                 .verifyWith(signingKey)
                 .build()
@@ -64,29 +65,10 @@ public class JwtService {
         return claimsResolver.apply(extractAllClaims(token));
     }
 
-    /**
-     * Validates a JWT token against the given {@link UserDetails}.
-     *
-     * <p>A token is considered valid if and only if:
-     * <ul>
-     *   <li>The {@code sub} claim matches the username of the provided {@code UserDetails}.</li>
-     *   <li>The token's {@code exp} claim is strictly after the current instant
-     *       (i.e. the token has not yet expired).</li>
-     * </ul>
-     *
-     * <p>Note: JJWT already throws a {@link io.jsonwebtoken.ExpiredJwtException} during
-     * {@link #extractAllClaims(String)} for tokens whose {@code exp} has passed. This
-     * explicit check is a defensive guard for edge cases where a pre-parsed Claims object
-     * is used, and makes the contract of this method unambiguous.
-     *
-     * @param token       the compact JWT string to validate
-     * @param userDetails the principal loaded from the database
-     * @return {@code true} if the token is authentic and unexpired; {@code false} otherwise
-     */
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        String username = extractUsername(token);
+    public boolean isTokenValid(Claims claims, UserDetails userDetails) {
+        String username = claims.getSubject();
         boolean usernameMatches = username.equals(userDetails.getUsername());
-        boolean notExpired = extractExpiration(token).after(Date.from(Instant.now()));
+        boolean notExpired = claims.getExpiration().after(Date.from(Instant.now()));
         return usernameMatches && notExpired;
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -21,6 +22,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(@NonNull String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email.toLowerCase().strip()).orElseThrow(() -> new UsernameNotFoundException(email));
         String password = user.getProviders()
@@ -43,6 +45,7 @@ public class CustomUserDetailsService implements UserDetailsService {
      * @return the populated {@link UserDetails} principal
      * @throws UsernameNotFoundException if no user exists with the given id
      */
+    @Transactional(readOnly = true)
     public UserDetails loadUserById(@NonNull UUID id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + id));

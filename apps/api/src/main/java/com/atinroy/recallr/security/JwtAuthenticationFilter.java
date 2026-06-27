@@ -1,6 +1,7 @@
 package com.atinroy.recallr.security;
 
 import com.atinroy.recallr.auth.JwtService;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -9,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -49,7 +51,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String jwt = authHeader.substring(BEARER_PREFIX.length());
 
         try {
-            final String userId = jwtService.extractUsername(jwt);
+            Claims claims = jwtService.extractAllClaims(jwt);
+            String tokenType = claims.get("token_type", String.class);
+
+            if (!"access_token".equals(tokenType)) {
+                // Refresh token presented as Bearer — reject silently
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            final String userId = claims.getSubject();
 
             if (userId != null &&
                     SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -57,7 +68,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 UserDetails userDetails =
                         userDetailsService.loadUserById(UUID.fromString(userId));
 
-                if (jwtService.isTokenValid(jwt, userDetails)) {
+                if (jwtService.isTokenValid(claims, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(
                                     userDetails,
@@ -72,7 +83,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }
-        } catch (JwtException | IllegalArgumentException e) {
+        } catch (JwtException | IllegalArgumentException | UsernameNotFoundException e) {
             SecurityContextHolder.clearContext();
         }
 

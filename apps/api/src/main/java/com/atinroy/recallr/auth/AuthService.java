@@ -24,7 +24,6 @@ import java.util.UUID;
 public class AuthService {
 
     private final UserRepository userRepository;
-    private final UserProviderRepository userProviderRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
@@ -59,25 +58,27 @@ public class AuthService {
                 accessToken,
                 refreshToken,
                 "Bearer",
-                UserMapper.toResponse(userRepository.getReferenceById(principal.getId()))
+                UserMapper.toResponse(principal)
         );
     }
 
+    @Transactional
     public LoginResponse refreshToken(String token) {
-        if (!refreshTokenService.isTokenValid(token)) {
-            throw new InvalidTokenException("Token is not valid");
-        }
+        RefreshToken refreshToken = refreshTokenService.getRefreshToken(token);
 
         String userId = jwtService.extractUsername(token);
         UUID uuid = UUID.fromString(userId);
         CustomUserDetails principal = (CustomUserDetails) customUserDetailsService.loadUserById(uuid);
+
+        refreshTokenService.revokeToken(refreshToken);
+        String newRefreshToken = refreshTokenService.generateRefreshToken(principal);
         String accessToken = jwtService.generateAccessToken(principal);
 
         return new LoginResponse(
                 accessToken,
-                token,
+                newRefreshToken,
                 "Bearer",
-                UserMapper.toResponse(userRepository.getReferenceById(uuid))
+                UserMapper.toResponse(principal)
         );
     }
 }

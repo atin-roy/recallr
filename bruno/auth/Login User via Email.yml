@@ -1,5 +1,5 @@
 info:
-  name: Login User
+  name: Login User via Email
   type: http
   seq: 2
 
