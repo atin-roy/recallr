@@ -6,11 +6,13 @@ export default function RegisterPage() {
   return (
     <main className="relative min-h-screen flex items-center justify-center px-4 overflow-hidden bg-zinc-950">
       {/* Network SVG background */}
-      <div 
+      <div
         className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-40"
         style={{
-          maskImage: "radial-gradient(ellipse at center, transparent 35%, black 75%)",
-          WebkitMaskImage: "radial-gradient(ellipse at center, transparent 35%, black 75%)"
+          maskImage:
+            "radial-gradient(ellipse at center, transparent 35%, black 75%)",
+          WebkitMaskImage:
+            "radial-gradient(ellipse at center, transparent 35%, black 75%)",
         }}
       >
         <svg
@@ -66,23 +68,6 @@ export default function RegisterPage() {
         </p>
 
         <form className="mt-7 space-y-4">
-          {/* Username */}
-          <div className="space-y-1.5">
-            <label
-              htmlFor="username"
-              className="block text-xs font-bold uppercase tracking-[0.18em] text-zinc-400"
-            >
-              Username
-            </label>
-            <input
-              id="username"
-              name="username"
-              type="text"
-              placeholder="atinroy"
-              className="w-full rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 outline-none transition focus:border-violet-400/60 focus:bg-white/[0.06] focus:ring-4 focus:ring-violet-500/10"
-            />
-          </div>
-
           {/* Email */}
           <div className="space-y-1.5">
             <label
@@ -95,7 +80,7 @@ export default function RegisterPage() {
               id="email"
               name="email"
               type="email"
-              placeholder="you@example.com"
+              placeholder="bhaskar@example.com"
               className="w-full rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 outline-none transition focus:border-violet-400/60 focus:bg-white/[0.06] focus:ring-4 focus:ring-violet-500/10"
             />
           </div>
