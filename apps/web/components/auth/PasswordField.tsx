@@ -1,30 +1,37 @@
 "use client";
 
 import { useState } from "react";
+import type React from "react";
 
 type PasswordFieldProps = {
   id: string;
   name: string;
   label: string;
+  labelAddon?: React.ReactNode;
+  required?: boolean;
 };
 
-export default function PasswordField({ id, name, label }: PasswordFieldProps) {
+export default function PasswordField({ id, name, label, labelAddon, required }: PasswordFieldProps) {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
     <div className="space-y-1.5">
-      <label
-        htmlFor={id}
-        className="block text-xs font-bold uppercase tracking-[0.18em] text-zinc-400"
-      >
-        {label}
-      </label>
+      <div className="flex items-center justify-between">
+        <label
+          htmlFor={id}
+          className="block text-xs font-bold uppercase tracking-[0.18em] text-zinc-400"
+        >
+          {label}
+        </label>
+        {labelAddon}
+      </div>
       <div className="relative">
         <input
           id={id}
           name={name}
           type={showPassword ? "text" : "password"}
           placeholder="••••••••"
+          required={required}
           className="w-full rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-2.5 pr-11 text-sm text-zinc-100 placeholder:text-zinc-600 outline-none transition focus:border-violet-400/60 focus:bg-white/[0.06] focus:ring-4 focus:ring-violet-500/10"
         />
         <button
