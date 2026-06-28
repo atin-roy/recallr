@@ -7,6 +7,11 @@ spring:
         expiration-seconds:
           access-token: 900
           refresh-token: 1209600
+        cookie:
+          name: refresh_token
+          path: /api/v1/auth
+          same-site: Lax
+          secure: false   # set to true (and same-site: None) in prod over https
   jmx:
     enabled: false
   jpa:

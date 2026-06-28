@@ -71,6 +71,21 @@ public class RefreshTokenService {
         refreshTokenRepository.save(refreshToken);
     }
 
+    /**
+     * Best-effort revocation by raw token value — used on logout.
+     * Unlike {@link #getRefreshToken(String)}, this method does NOT throw if the
+     * token is missing, expired, or already revoked (e.g. the user logged out twice).
+     */
+    @Transactional
+    public void revokeByRawToken(String token) {
+        refreshTokenRepository.findByTokenHash(hash(token))
+                .filter(rt -> !rt.isRevoked())
+                .ifPresent(rt -> {
+                    rt.setRevoked(true);
+                    refreshTokenRepository.save(rt);
+                });
+    }
+
     @Transactional
     public RefreshToken getRefreshToken(String token) {
         Optional<RefreshToken> refreshToken = refreshTokenRepository.findByTokenHash(hash(token));

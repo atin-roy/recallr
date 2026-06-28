@@ -1,6 +1,6 @@
 package com.atinroy.recallr.auth;
 
-import com.atinroy.recallr.auth.dto.LoginResponse;
+import com.atinroy.recallr.auth.dto.AuthResult;
 import com.atinroy.recallr.auth.dto.EmailRegisterRequest;
 import com.atinroy.recallr.auth.dto.LoginRequest;
 import com.atinroy.recallr.security.CustomUserDetails;
@@ -41,7 +41,7 @@ public class AuthService {
     }
 
     @Transactional
-    public LoginResponse login(LoginRequest request) {
+    public AuthResult login(LoginRequest request) {
         // Throws AuthenticationException (→ 401) if credentials are wrong
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -54,16 +54,11 @@ public class AuthService {
         String accessToken = jwtService.generateAccessToken(principal);
         String refreshToken = refreshTokenService.generateRefreshToken(principal);
 
-        return new LoginResponse(
-                accessToken,
-                refreshToken,
-                "Bearer",
-                UserMapper.toResponse(principal)
-        );
+        return new AuthResult(accessToken, refreshToken, UserMapper.toResponse(principal));
     }
 
     @Transactional
-    public LoginResponse refreshToken(String token) {
+    public AuthResult refreshToken(String token) {
         RefreshToken refreshToken = refreshTokenService.getRefreshToken(token);
 
         UUID uuid = refreshToken.getUserId();
@@ -73,11 +68,6 @@ public class AuthService {
         String newRefreshToken = refreshTokenService.generateRefreshToken(principal);
         String accessToken = jwtService.generateAccessToken(principal);
 
-        return new LoginResponse(
-                accessToken,
-                newRefreshToken,
-                "Bearer",
-                UserMapper.toResponse(principal)
-        );
+        return new AuthResult(accessToken, newRefreshToken, UserMapper.toResponse(principal));
     }
 }
