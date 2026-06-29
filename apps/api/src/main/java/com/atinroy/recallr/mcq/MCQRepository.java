@@ -8,6 +8,5 @@ import java.util.UUID;
 
 @Repository
 public interface MCQRepository extends JpaRepository<MCQ, UUID> {
-    Optional<MCQ> findByIdAndUserId(UUID id, UUID userId);
     Optional<MCQ> findByIdAndSubjectId(UUID id, UUID subjectId);
 }
