@@ -1,16 +1,20 @@
 package com.atinroy.recallr.security;
 
+import com.atinroy.recallr.user.User;
 import com.atinroy.recallr.user.UserNotFoundException;
+import com.atinroy.recallr.user.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import java.util.UUID;
-
 @Component
+@RequiredArgsConstructor
 public class AuthenticatedUserProvider {
 
-    public UUID getCurrentUserId() {
+    private final UserRepository userRepository;
+
+    public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -23,6 +27,7 @@ public class AuthenticatedUserProvider {
             throw new UserNotFoundException("Invalid authenticated user");
         }
 
-        return userDetails.getId();
+        return userRepository.findById(userDetails.getId())
+                .orElseThrow(() -> new UserNotFoundException("Authenticated user not found"));
     }
 }

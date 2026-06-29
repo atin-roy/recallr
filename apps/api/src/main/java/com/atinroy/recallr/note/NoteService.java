@@ -7,8 +7,6 @@ import com.atinroy.recallr.note.dto.NoteUpdateResponse;
 import com.atinroy.recallr.common.BadRequestException;
 import com.atinroy.recallr.security.AuthenticatedUserProvider;
 import com.atinroy.recallr.user.User;
-import com.atinroy.recallr.user.UserNotFoundException;
-import com.atinroy.recallr.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,17 +17,13 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class NoteService {
 
-    private final UserRepository userRepository;
     private final NoteRepository noteRepository;
     private final NoteMapper noteMapper;
     private final AuthenticatedUserProvider authenticatedUserProvider;
 
     @Transactional
     public NoteResponse createNote(NoteRequest request) {
-        UUID userId = authenticatedUserProvider.getCurrentUserId();
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        User user = authenticatedUserProvider.getCurrentUser();
 
         Note savedNote = noteRepository.save(noteMapper.toEntity(request, user));
 
@@ -42,7 +36,7 @@ public class NoteService {
 
     @Transactional
     public NoteUpdateResponse updateNote(NoteUpdateRequest request) {
-        UUID userId = authenticatedUserProvider.getCurrentUserId();
+        UUID userId = authenticatedUserProvider.getCurrentUser().getId();
 
         UUID noteId = parseUuid(request.id());
         Note note = noteRepository.findByIdAndUserId(noteId, userId)
