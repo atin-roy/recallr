@@ -144,4 +144,37 @@ class NoteServiceTest {
 
         verify(noteRepository).delete(note);
     }
+
+    @Test
+    void updateNote_whenSubjectNotFound_throwsSubjectNotFoundException() {
+        UUID subjectId = UUID.randomUUID();
+        when(authenticatedUserProvider.getCurrentUser()).thenReturn(user);
+        when(subjectRepository.findByIdAndUserId(subjectId, user.getId())).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> noteService.updateNote(subjectId, note.getId(), new NoteUpdateRequest("T", null, null)))
+                .isInstanceOf(SubjectNotFoundException.class);
+    }
+
+    @Test
+    void updateNote_whenNoteNotFound_throwsNoteNotFoundException() {
+        UUID noteId = UUID.randomUUID();
+        when(authenticatedUserProvider.getCurrentUser()).thenReturn(user);
+        when(subjectRepository.findByIdAndUserId(subject.getId(), user.getId())).thenReturn(Optional.of(subject));
+        when(noteRepository.findByIdAndSubjectId(noteId, subject.getId())).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> noteService.updateNote(subject.getId(), noteId, new NoteUpdateRequest("T", null, null)))
+                .isInstanceOf(NoteNotFoundException.class);
+    }
+
+    @Test
+    void updateNote_withTopicNotInSubject_throwsBadRequestException() {
+        UUID topicId = UUID.randomUUID();
+        when(authenticatedUserProvider.getCurrentUser()).thenReturn(user);
+        when(subjectRepository.findByIdAndUserId(subject.getId(), user.getId())).thenReturn(Optional.of(subject));
+        when(noteRepository.findByIdAndSubjectId(note.getId(), subject.getId())).thenReturn(Optional.of(note));
+        when(topicRepository.findByIdAndSubjectId(topicId, subject.getId())).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> noteService.updateNote(subject.getId(), note.getId(), new NoteUpdateRequest("T", null, topicId)))
+                .isInstanceOf(BadRequestException.class);
+    }
 }
