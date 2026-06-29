@@ -7,6 +7,7 @@ public record MCQResponse(
         String question,
         List<String> options,
         int correctOptionIndex,
-        String explanation
-) {
-}
+        String explanation,
+        String subjectId,
+        String topicId
+) {}

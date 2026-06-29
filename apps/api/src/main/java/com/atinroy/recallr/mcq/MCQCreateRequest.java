@@ -7,11 +7,12 @@ import jakarta.validation.constraints.PositiveOrZero;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.UUID;
 
 public record MCQCreateRequest(
-        @NotNull @NotEmpty @NotBlank String question,
-        @NotEmpty @NotBlank List<String> options,
+        @NotNull @NotBlank String question,
+        @NotEmpty List<String> options,
         @PositiveOrZero int correctOptionIndex,
-        String explanation
-) implements Serializable {
-  }
+        String explanation,
+        UUID topicId
+) implements Serializable {}

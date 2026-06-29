@@ -1,9 +1,14 @@
 package com.atinroy.recallr.mcq;
 
+import com.atinroy.recallr.common.BadRequestException;
 import com.atinroy.recallr.mcq.dto.MCQResponse;
 import com.atinroy.recallr.mcq.dto.MCQUpdateRequest;
 import com.atinroy.recallr.security.AuthenticatedUserProvider;
-import com.atinroy.recallr.user.User;
+import com.atinroy.recallr.subject.Subject;
+import com.atinroy.recallr.subject.SubjectNotFoundException;
+import com.atinroy.recallr.subject.SubjectRepository;
+import com.atinroy.recallr.topic.Topic;
+import com.atinroy.recallr.topic.TopicRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,41 +21,55 @@ public class MCQService {
 
     private final MCQRepository mcqRepository;
     private final MCQMapper mcqMapper;
+    private final SubjectRepository subjectRepository;
+    private final TopicRepository topicRepository;
     private final AuthenticatedUserProvider authenticatedUserProvider;
 
     @Transactional
-    public MCQResponse createMCQ(MCQCreateRequest request) {
-        User user = authenticatedUserProvider.getCurrentUser();
-        MCQ saved = mcqRepository.save(mcqMapper.toEntity(request, user));
+    public MCQResponse createMCQ(UUID subjectId, MCQCreateRequest request) {
+        Subject subject = resolveSubject(subjectId);
+        Topic topic = resolveTopic(request.topicId(), subjectId);
+        MCQ saved = mcqRepository.save(mcqMapper.toEntity(request, subject, topic));
         return mcqMapper.toResponse(saved);
     }
 
-    public MCQResponse getMCQById(UUID mcqId) {
-        UUID userId = authenticatedUserProvider.getCurrentUser().getId();
-        MCQ mcq = mcqRepository.findByIdAndUserId(mcqId, userId)
+    public MCQResponse getMCQById(UUID subjectId, UUID mcqId) {
+        resolveSubject(subjectId);
+        MCQ mcq = mcqRepository.findByIdAndSubjectId(mcqId, subjectId)
                 .orElseThrow(() -> new MCQNotFoundException("MCQ not found"));
         return mcqMapper.toResponse(mcq);
     }
 
     @Transactional
-    public MCQResponse updateMCQ(UUID mcqId, MCQUpdateRequest request) {
-        UUID userId = authenticatedUserProvider.getCurrentUser().getId();
-        MCQ mcq = mcqRepository.findByIdAndUserId(mcqId, userId)
+    public MCQResponse updateMCQ(UUID subjectId, UUID mcqId, MCQUpdateRequest request) {
+        resolveSubject(subjectId);
+        MCQ mcq = mcqRepository.findByIdAndSubjectId(mcqId, subjectId)
                 .orElseThrow(() -> new MCQNotFoundException("MCQ not found"));
-
         mcq.setQuestion(request.question());
         mcq.setOptions(request.options());
         mcq.setCorrectOptionIndex(request.correctOptionIndex());
         mcq.setExplanation(request.explanation());
-
+        mcq.setTopic(resolveTopic(request.topicId(), subjectId));
         return mcqMapper.toResponse(mcq);
     }
 
     @Transactional
-    public void deleteMCQ(UUID mcqId) {
-        UUID userId = authenticatedUserProvider.getCurrentUser().getId();
-        MCQ mcq = mcqRepository.findByIdAndUserId(mcqId, userId)
+    public void deleteMCQ(UUID subjectId, UUID mcqId) {
+        resolveSubject(subjectId);
+        MCQ mcq = mcqRepository.findByIdAndSubjectId(mcqId, subjectId)
                 .orElseThrow(() -> new MCQNotFoundException("MCQ not found"));
         mcqRepository.delete(mcq);
+    }
+
+    private Subject resolveSubject(UUID subjectId) {
+        UUID userId = authenticatedUserProvider.getCurrentUser().getId();
+        return subjectRepository.findByIdAndUserId(subjectId, userId)
+                .orElseThrow(() -> new SubjectNotFoundException("Subject not found"));
+    }
+
+    private Topic resolveTopic(UUID topicId, UUID subjectId) {
+        if (topicId == null) return null;
+        return topicRepository.findByIdAndSubjectId(topicId, subjectId)
+                .orElseThrow(() -> new BadRequestException("Topic not found in subject"));
     }
 }

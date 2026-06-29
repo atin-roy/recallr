@@ -1,10 +1,13 @@
 package com.atinroy.recallr.mcq;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 import java.util.UUID;
 
+@Repository
 public interface MCQRepository extends JpaRepository<MCQ, UUID> {
     Optional<MCQ> findByIdAndUserId(UUID id, UUID userId);
+    Optional<MCQ> findByIdAndSubjectId(UUID id, UUID subjectId);
 }
