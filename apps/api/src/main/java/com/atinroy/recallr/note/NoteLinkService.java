@@ -35,6 +35,23 @@ public class NoteLinkService {
     }
 
     @Transactional
+    public NoteLinkResponse updateNoteLink(UUID id, NoteLinkRequest request) {
+        User user = authenticatedUserProvider.getCurrentUser();
+
+        NoteLink link = noteLinkRepository.findByIdAndSourceUserId(id, user.getId())
+                .orElseThrow(() -> new NoteLinkNotFoundException("Note link not found"));
+
+        Note source = findNoteForUser(parseUuid(request.sourceId()), user.getId());
+        Note target = findNoteForUser(parseUuid(request.targetId()), user.getId());
+
+        link.setSource(source);
+        link.setTarget(target);
+
+        NoteLink saved = noteLinkRepository.save(link);
+        return toResponse(saved);
+    }
+
+    @Transactional
     public void deleteNoteLink(UUID id) {
         User user = authenticatedUserProvider.getCurrentUser();
 
