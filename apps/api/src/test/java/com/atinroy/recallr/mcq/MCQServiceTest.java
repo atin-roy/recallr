@@ -128,4 +128,40 @@ class MCQServiceTest {
         assertThatThrownBy(() -> mcqService.deleteMCQ(subject.getId(), mcqId))
                 .isInstanceOf(MCQNotFoundException.class);
     }
+
+    @Test
+    void updateMCQ_whenSubjectNotFound_throwsSubjectNotFoundException() {
+        UUID subjectId = UUID.randomUUID();
+        when(authenticatedUserProvider.getCurrentUser()).thenReturn(user);
+        when(subjectRepository.findByIdAndUserId(subjectId, user.getId())).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> mcqService.updateMCQ(subjectId, mcq.getId(),
+                new MCQUpdateRequest("Q?", List.of("A", "B"), 0, null, null)))
+                .isInstanceOf(SubjectNotFoundException.class);
+    }
+
+    @Test
+    void updateMCQ_whenMCQNotFound_throwsMCQNotFoundException() {
+        UUID mcqId = UUID.randomUUID();
+        when(authenticatedUserProvider.getCurrentUser()).thenReturn(user);
+        when(subjectRepository.findByIdAndUserId(subject.getId(), user.getId())).thenReturn(Optional.of(subject));
+        when(mcqRepository.findByIdAndSubjectId(mcqId, subject.getId())).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> mcqService.updateMCQ(subject.getId(), mcqId,
+                new MCQUpdateRequest("Q?", List.of("A", "B"), 0, null, null)))
+                .isInstanceOf(MCQNotFoundException.class);
+    }
+
+    @Test
+    void updateMCQ_withTopicNotInSubject_throwsBadRequestException() {
+        UUID topicId = UUID.randomUUID();
+        when(authenticatedUserProvider.getCurrentUser()).thenReturn(user);
+        when(subjectRepository.findByIdAndUserId(subject.getId(), user.getId())).thenReturn(Optional.of(subject));
+        when(mcqRepository.findByIdAndSubjectId(mcq.getId(), subject.getId())).thenReturn(Optional.of(mcq));
+        when(topicRepository.findByIdAndSubjectId(topicId, subject.getId())).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> mcqService.updateMCQ(subject.getId(), mcq.getId(),
+                new MCQUpdateRequest("Q?", List.of("A", "B"), 0, null, topicId)))
+                .isInstanceOf(BadRequestException.class);
+    }
 }
