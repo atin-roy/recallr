@@ -1,9 +1,11 @@
 spring:
+  profiles:
+    active: "${SPRING_PROFILES_ACTIVE:local}"
   application:
     name: api
     security:
       jwt:
-        secret: "zM4y6Q1maI/mvNG7N3/pJyGR+2G0+pH/EbhEgZgX6AA=" # remove from here on prod, and make it double the size openssl rand -base64 64
+        secret: "${JWT_SECRET}"
         expiration-seconds:
           access-token: 900
           refresh-token: 1209600

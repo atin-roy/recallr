@@ -4,6 +4,6 @@ import jakarta.validation.constraints.NotBlank;
 
 public record NoteLinkRequest(
         @NotBlank String sourceId,
-        String targetId
+        @NotBlank String targetId
 ) {
 }

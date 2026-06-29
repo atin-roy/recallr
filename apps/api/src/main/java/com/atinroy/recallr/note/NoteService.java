@@ -35,10 +35,9 @@ public class NoteService {
     }
 
     @Transactional
-    public NoteUpdateResponse updateNote(NoteUpdateRequest request) {
+    public NoteUpdateResponse updateNote(UUID noteId, NoteUpdateRequest request) {
         UUID userId = authenticatedUserProvider.getCurrentUser().getId();
 
-        UUID noteId = parseUuid(request.id());
         Note note = noteRepository.findByIdAndUserId(noteId, userId)
                 .orElseThrow(() -> new NoteNotFoundException("Note not found"));
 
@@ -46,6 +45,23 @@ public class NoteService {
         note.setContent(request.content());
 
         return noteMapper.toUpdateResponse(note);
+    }
+
+    @Transactional
+    public void deleteNote(UUID noteId) {
+        UUID userId = authenticatedUserProvider.getCurrentUser().getId();
+        Note note = noteRepository.findByIdAndUserId(noteId, userId)
+                .orElseThrow(() -> new NoteNotFoundException("Note not found"));
+
+        noteRepository.delete(note);
+    }
+
+    public NoteResponse getNoteById(UUID noteId) {
+        UUID userId = authenticatedUserProvider.getCurrentUser().getId();
+        Note note = noteRepository.findByIdAndUserId(noteId, userId)
+                .orElseThrow(() -> new NoteNotFoundException("Note not found"));
+
+        return noteMapper.toResponse(note);
     }
 
     private UUID parseUuid(String value) {

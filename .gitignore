@@ -10,3 +10,4 @@ target/
 !.env.example
 
 .plans/
+apps/api/src/main/resources/application-local.yaml
