@@ -1,8 +1,11 @@
 package com.atinroy.recallr.note.dto;
 
-public record NoteUpdateResponse (
+import java.util.UUID;
+
+public record NoteUpdateResponse(
         String id,
         String title,
-        String content
-){
-}
+        String content,
+        String subjectId,
+        String topicId
+) {}
