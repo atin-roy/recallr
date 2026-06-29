@@ -2,6 +2,7 @@ package com.atinroy.recallr.global;
 
 import com.atinroy.recallr.auth.InvalidTokenException;
 import com.atinroy.recallr.common.BadRequestException;
+import com.atinroy.recallr.mcq.MCQNotFoundException;
 import com.atinroy.recallr.note.NoteLinkNotFoundException;
 import com.atinroy.recallr.note.NoteNotFoundException;
 import com.atinroy.recallr.user.EmailAlreadyExistsException;
@@ -47,7 +48,7 @@ public class GlobalControllerAdvice {
         return new ResponseEntity<>(errorBody(HttpStatus.UNAUTHORIZED, "Authentication required"), HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler({NoteNotFoundException.class, NoteLinkNotFoundException.class})
+    @ExceptionHandler({NoteNotFoundException.class, NoteLinkNotFoundException.class, MCQNotFoundException.class})
     public ResponseEntity<Map<String, Object>> handleNotFound(RuntimeException e) {
         return new ResponseEntity<>(errorBody(HttpStatus.NOT_FOUND, e.getMessage()), HttpStatus.NOT_FOUND);
     }
