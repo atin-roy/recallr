@@ -6,6 +6,7 @@ import com.atinroy.recallr.mcq.MCQNotFoundException;
 import com.atinroy.recallr.note.NoteLinkNotFoundException;
 import com.atinroy.recallr.note.NoteNotFoundException;
 import com.atinroy.recallr.subject.SubjectNotFoundException;
+import com.atinroy.recallr.topic.TopicNotFoundException;
 import com.atinroy.recallr.user.EmailAlreadyExistsException;
 import com.atinroy.recallr.user.UserNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -49,8 +50,7 @@ public class GlobalControllerAdvice {
         return new ResponseEntity<>(errorBody(HttpStatus.UNAUTHORIZED, "Authentication required"), HttpStatus.UNAUTHORIZED);
     }
 
-    // TODO: Add TopicNotFoundException to handler in Task 4
-    @ExceptionHandler({NoteNotFoundException.class, NoteLinkNotFoundException.class, MCQNotFoundException.class, SubjectNotFoundException.class})
+    @ExceptionHandler({NoteNotFoundException.class, NoteLinkNotFoundException.class, MCQNotFoundException.class, SubjectNotFoundException.class, TopicNotFoundException.class})
     public ResponseEntity<Map<String, Object>> handleNotFound(RuntimeException e) {
         return new ResponseEntity<>(errorBody(HttpStatus.NOT_FOUND, e.getMessage()), HttpStatus.NOT_FOUND);
     }
