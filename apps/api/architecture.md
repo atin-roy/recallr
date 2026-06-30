@@ -2,7 +2,7 @@
 
 ## Project overview
 
-This repository is a Spring Boot REST API for Recallr, a study/knowledge application organized around users, subjects, topics, notes, note links, and MCQs.
+This repository is a Spring Boot REST API for Recallr, a study/knowledge application organized around users, notebooks, decks, notes, and flashcards.
 
 - Application entrypoint: `src/main/java/com/atinroy/recallr/ApiApplication.java`
 - HTTP base path: `/api/v1` via `spring.mvc.servlet.path` in `src/main/resources/application.yaml`
@@ -19,15 +19,28 @@ src/main/java/com/atinroy/recallr
 ├── common/                          # Shared base entity and common exceptions
 ├── domain/
 │   ├── user/                        # User, roles, identity providers, user repositories
-│   ├── subject/                     # Subject CRUD
-│   ├── topic/                       # Topic CRUD nested under subjects
-│   ├── note/                        # Note CRUD and note-link service/model
-│   └── mcq/                         # Multiple-choice question CRUD
+│   ├── notebook/                    # Notebook CRUD (user-owned)
+│   ├── deck/                        # Deck CRUD (optionally nested under a notebook)
+│   ├── note/                        # Note CRUD nested under notebooks, plus note-link model
+│   └── flashcard/                   # Unified flashcard hierarchy (BASIC and MCQ types)
 ├── global/                          # Global exception-to-HTTP mapping
 └── security/                        # Spring Security config, JWT filter, current-user provider
 ```
 
-Tests are under `src/test/java/com/atinroy/recallr`, grouped by domain service: `subject`, `topic`, `note`, `mcq`, plus a bootstrapping `ApiApplicationTests`.
+Tests are under `src/test/java/com/atinroy/recallr`, grouped by domain service: `notebook`, `deck`, `note`, `flashcard`, plus a bootstrapping `ApiApplicationTests`.
+
+## Domain model
+
+```
+User
+├── Notebook          (user-owned; name, description)
+│   ├── Note          (belongs to Notebook — required; title, content, note-links)
+│   └── Deck          (optional: a deck can also be standalone)
+└── Deck              (user-owned; notebook FK nullable for standalone decks)
+    └── Flashcard     (abstract; SINGLE_TABLE inheritance)
+        ├── BasicFlashcard   (question, answer, reverse)
+        └── MCQFlashcard     (question, options[], correctOptionIndex, explanation)
+```
 
 ## Core components and responsibilities
 
@@ -71,23 +84,23 @@ Each main domain follows a controller → service → repository → mapper patt
   - Repositories: `UserRepository`, `UserProviderRepository`
   - DTO: `UserResponse`
   - Mapper: `UserMapper`
-- `domain/subject/`
-  - Entity: `Subject`
-  - Controller/service/repository/mapper for subject CRUD
-  - Subjects belong to a `User`.
-- `domain/topic/`
-  - Entity: `Topic`
-  - Topics belong to a `Subject`.
-  - Routes are nested under `/subjects/{subjectId}/topics`.
+- `domain/notebook/`
+  - Entity: `Notebook`
+  - Notebooks belong to a `User`.
+  - Controller/service/repository/mapper for notebook CRUD.
+- `domain/deck/`
+  - Entity: `Deck`
+  - Decks belong to a `User` and optionally to a `Notebook` (nullable FK).
+  - `DeckController` handles both notebook-nested routes and standalone deck routes.
 - `domain/note/`
   - Entities: `Note`, `NoteLink`
-  - Notes belong to a `User` and `Subject`, with optional `Topic`.
-  - `NoteLink` connects source and target notes.
-  - `NoteLinkService` exists, but there is no controller exposing note-link endpoints in the current codebase.
-- `domain/mcq/`
-  - Entity: `MCQ`
-  - MCQs belong to a `User` and `Subject`, with optional `Topic`.
-  - Options are stored as a JPA `@ElementCollection` in `mcqs_options`.
+  - Notes belong to a `User` and `Notebook` (required FK).
+  - `NoteLink` connects source and target notes with an optional label.
+  - `NoteLinkService` creates/updates/deletes links between notes. There is no `NoteLinkController`; note-link management is intentionally not yet exposed via HTTP.
+- `domain/flashcard/`
+  - Abstract entity: `Flashcard` (SINGLE_TABLE inheritance, discriminator column `type`)
+  - Subtypes: `BasicFlashcard` (question, answer, reverse), `MCQFlashcard` (question, options[], correctOptionIndex, explanation)
+  - All flashcard types are managed through a single unified controller/service under `/decks/{deckId}/flashcards`.
 
 ### Shared/common components
 
@@ -137,43 +150,46 @@ Each main domain follows a controller → service → repository → mapper patt
 - If a revoked refresh token is reused, `RefreshTokenService` revokes all tokens for that user.
 - `POST /auth/logout` revokes the current refresh token if present and clears the cookie.
 
-### Subject flow
+### Notebook flow
 
-Routes: `/api/v1/subjects`
+Routes: `/api/v1/notebooks`, `/api/v1/notebooks/{notebookId}`
 
-- `SubjectController` delegates to `SubjectService`.
-- `SubjectService` always scopes reads/updates/deletes by current user using `SubjectRepository.findByIdAndUserId()`.
-- `SubjectMapper` maps between request/response DTOs and `Subject` entity.
+- `NotebookController` delegates to `NotebookService`.
+- `NotebookService` scopes all reads/updates/deletes by the current user.
+- `NotebookMapper` maps between request/response DTOs and the `Notebook` entity.
 
-### Topic flow
+### Deck flow
 
-Routes: `/api/v1/subjects/{subjectId}/topics`
+Routes:
+- `POST /api/v1/notebooks/{notebookId}/decks` — create a deck inside a notebook
+- `GET /api/v1/notebooks/{notebookId}/decks` — list decks in a notebook
+- `POST /api/v1/decks` — create a standalone deck
+- `GET/PUT/DELETE /api/v1/decks/{deckId}` — standalone deck operations
 
-- `TopicService.resolveSubject()` first verifies that the parent subject belongs to the current user.
-- Topic lookup uses `TopicRepository.findByIdAndSubjectId()`.
-- This creates a parent-scoped authorization boundary: a user must own the subject before accessing its topics.
+- `DeckController` handles both notebook-nested and standalone routes in a single controller without a common `@RequestMapping` prefix.
+- `DeckService` verifies notebook ownership (when creating inside a notebook) via `NotebookRepository.findByIdAndUserId()`, and deck ownership via `DeckRepository.findByIdAndUserId()` for all other operations.
 
 ### Note flow
 
-Routes: `/api/v1/subjects/{subjectId}/notes`
+Routes: `/api/v1/notebooks/{notebookId}/notes`, `/api/v1/notebooks/{notebookId}/notes/{noteId}`
 
-- `NoteService.resolveSubject()` verifies user ownership of the subject.
-- Optional topic IDs are validated with `TopicRepository.findByIdAndSubjectId()`; a topic outside the subject produces `BadRequestException`.
-- Note lookup uses `NoteRepository.findByIdAndSubjectId()` after subject ownership is verified.
-- `NoteMapper` derives note `user` from `subject.getUser()` on create.
+- `NoteController` is nested under notebooks.
+- `NoteService` verifies that the parent notebook belongs to the current user before accessing or mutating notes.
+- Note lookup uses `NoteRepository.findByIdAndNotebookId()` after notebook ownership is verified.
+- `NoteMapper` derives the note `user` from `notebook.getUser()` on create.
 
-### MCQ flow
+### Flashcard flow
 
-Routes: `/api/v1/subjects/{subjectId}/mcqs`
+Routes: `/api/v1/decks/{deckId}/flashcards`, `/api/v1/decks/{deckId}/flashcards/{flashcardId}`
 
-- Mirrors note flow.
-- `MCQService` verifies subject ownership, validates optional topic membership, persists through `MCQRepository`, and maps with `MCQMapper`.
+- `FlashcardController` handles all flashcard types through a single unified endpoint.
+- `FlashcardService` first verifies deck ownership via `DeckRepository.findByIdAndUserId()` before all operations.
+- Individual flashcard lookup uses `FlashcardRepository.findByIdAndDeckId()`.
+- `FlashcardMapper` reads the `type` discriminator from the request and constructs the correct subtype entity.
 
-### Note-link flow
+### Flashcard design decision: SINGLE_TABLE inheritance
 
-- `NoteLinkService` creates/updates/deletes links between notes.
-- It validates both source and target notes by `NoteRepository.findByIdAndUserId()` to ensure both notes belong to the current user.
-- Current ambiguity: no `NoteLinkController` is present, so this service is not exposed via HTTP in the inspected code.
+All flashcard types (`BASIC`, `MCQ`, and future types) live in one `flashcards` table with a `type` discriminator column. Type-specific fields are nullable for other types. This was chosen because the dominant access pattern — listing all cards in a deck — is a free single-table query with no joins. New types require a small migration (adding columns) but keep full JPA type safety. Jackson `@JsonTypeInfo` polymorphism on the `type` field gives a unified API (`/decks/{deckId}/flashcards`) that returns mixed types in one list.
 
 ## Configuration and environment setup
 
@@ -234,19 +250,20 @@ Flyway migration `V1__init_db.sql` creates:
 - `user_providers`
 - `user_roles`
 - `refresh_tokens`
-- `subjects`
-- `topics`
+- `notebooks`
+- `decks`
 - `notes`
 - `note_links`
-- `mcqs`
-- `mcqs_options`
+- `flashcards`
+- `flashcard_options`
 
 Important relationships:
 
-- `users` → `subjects`, `notes`, `mcqs`, `refresh_tokens`
-- `subjects` → `topics`, `notes`, `mcqs`
-- `topics` may be set null on note/MCQ delete relationships via `ON DELETE SET NULL`
+- `users` → `notebooks`, `decks`, `notes`, `flashcards`, `refresh_tokens`
+- `notebooks` → `decks` (nullable; a deck may exist without a notebook), `notes` (required)
+- `decks` → `flashcards`
 - `note_links` links notes by source and target, unique on `(source_note_id, target_note_id)`
+- `flashcards` uses SINGLE_TABLE inheritance; the `type` column (`VARCHAR(31)`) discriminates subtypes. `flashcard_options` stores MCQ option strings as a collection table.
 
 ### External integrations
 
@@ -258,12 +275,12 @@ Important relationships:
 
 Tests are primarily service-level unit tests with Mockito:
 
-- `SubjectServiceTest` covers subject create/read/update/delete and not-found behavior.
-- `TopicServiceTest` covers parent subject resolution, topic CRUD, and exceptions.
-- `NoteServiceTest` covers note CRUD, optional topic handling, invalid topic-in-subject checks, and not-found cases.
+- `NotebookServiceTest` covers notebook create/read/update/delete and not-found behavior.
+- `DeckServiceTest` covers notebook-nested and standalone deck creation, deck CRUD, parent notebook resolution, and exceptions.
+- `NoteServiceTest` covers note CRUD, notebook ownership validation, and not-found cases.
 - `NoteLinkServiceTest` covers link creation/update/delete and note/link not-found cases.
-- `MCQServiceTest` covers MCQ CRUD, subject/topic validation, and not-found cases.
-- `ApiApplicationTests` is a Spring Boot context-load test.
+- `FlashcardServiceTest` covers flashcard CRUD for both `BASIC` and `MCQ` types, deck ownership validation, and not-found cases.
+- `ApiApplicationTests` is a Spring Boot context-load test (requires a live PostgreSQL instance).
 
 The tests map directly to service classes rather than controller integration tests. No repository integration tests or end-to-end HTTP/security tests were found in the inspected tree.
 
@@ -274,8 +291,8 @@ The tests map directly to service classes rather than controller integration tes
   - Service: business rules, transactions, ownership checks
   - Repository: Spring Data JPA persistence
   - Mapper: entity/DTO conversion
-- Authorization is enforced mostly in services by querying resources through current-user or parent-subject scoped repository methods.
-- Nested resources use subject ownership as the primary boundary: topics, notes, and MCQs are all accessed through a verified subject.
+- Authorization is enforced in services by querying resources through current-user or parent-resource scoped repository methods.
+- Nested resources use parent ownership as the primary boundary: notes are accessed through a verified notebook; flashcards are accessed through a verified deck.
 - JWT access tokens are stateless, but refresh tokens are stateful and persisted by hash, enabling revocation and reuse detection.
 - Entities use UUID IDs generated in the Java domain layer rather than database sequences.
 - JPA schema generation is disabled for mutation (`ddl-auto: validate`); schema changes should be made through Flyway migrations.
@@ -283,7 +300,7 @@ The tests map directly to service classes rather than controller integration tes
 
 ## Unknowns / ambiguities
 
-- `NoteLinkService` has no matching controller, so note-link API endpoints are either planned or missing.
+- `NoteLinkService` has no matching controller; note-link API endpoints are not yet exposed via HTTP. This is intentional — the service layer exists but the HTTP surface is deferred.
 - Spring Mail is included but unused in the inspected source.
 - External OAuth providers are modeled but not implemented in controllers/services.
 - Production environment configuration is not present; JWT secret, datasource settings, secure cookie settings, and CORS origins likely need environment-specific overrides.
@@ -291,4 +308,4 @@ The tests map directly to service classes rather than controller integration tes
 
 ## Onboarding summary
 
-Start with `ApiApplication.java`, then read `SecurityConfig` and `JwtAuthenticationFilter` to understand how every request is authenticated. For domain behavior, follow the pattern used by `SubjectController` → `SubjectService` → `SubjectRepository` → `SubjectMapper`; topics, notes, and MCQs use the same shape with additional parent-subject checks. Persistence is defined by JPA entities and validated against the Flyway schema in `V1__init_db.sql`. Service tests under `src/test/java` are the best executable documentation for domain rules and exception behavior.
+Start with `ApiApplication.java`, then read `SecurityConfig` and `JwtAuthenticationFilter` to understand how every request is authenticated. For domain behavior, follow the pattern used by `NotebookController` → `NotebookService` → `NotebookRepository` → `NotebookMapper`; decks, notes, and flashcards use the same shape with additional parent-resource ownership checks. Persistence is defined by JPA entities and validated against the Flyway schema in `V1__init_db.sql`. Service tests under `src/test/java` are the best executable documentation for domain rules and exception behavior.
