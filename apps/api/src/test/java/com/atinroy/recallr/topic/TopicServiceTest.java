@@ -1,13 +1,14 @@
 package com.atinroy.recallr.topic;
 
+import com.atinroy.recallr.domain.topic.*;
 import com.atinroy.recallr.security.AuthenticatedUserProvider;
-import com.atinroy.recallr.subject.Subject;
-import com.atinroy.recallr.subject.SubjectNotFoundException;
-import com.atinroy.recallr.subject.SubjectRepository;
-import com.atinroy.recallr.topic.dto.TopicRequest;
-import com.atinroy.recallr.topic.dto.TopicResponse;
-import com.atinroy.recallr.topic.dto.TopicUpdateRequest;
-import com.atinroy.recallr.user.User;
+import com.atinroy.recallr.domain.subject.Subject;
+import com.atinroy.recallr.domain.subject.SubjectNotFoundException;
+import com.atinroy.recallr.domain.subject.SubjectRepository;
+import com.atinroy.recallr.domain.topic.dto.TopicRequest;
+import com.atinroy.recallr.domain.topic.dto.TopicResponse;
+import com.atinroy.recallr.domain.topic.dto.TopicUpdateRequest;
+import com.atinroy.recallr.domain.user.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,12 +25,15 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class TopicServiceTest {
 
-    @Mock TopicRepository topicRepository;
-    @Mock TopicMapper topicMapper;
+    @Mock
+    TopicRepository topicRepository;
+    @Mock
+    TopicMapper topicMapper;
     @Mock SubjectRepository subjectRepository;
     @Mock AuthenticatedUserProvider authenticatedUserProvider;
 
-    @InjectMocks TopicService topicService;
+    @InjectMocks
+    TopicService topicService;
 
     private User user;
     private Subject subject;

@@ -1,8 +1,8 @@
 package com.atinroy.recallr.security;
 
-import com.atinroy.recallr.user.User;
-import com.atinroy.recallr.user.UserNotFoundException;
-import com.atinroy.recallr.user.UserRepository;
+import com.atinroy.recallr.domain.user.User;
+import com.atinroy.recallr.domain.user.UserNotFoundException;
+import com.atinroy.recallr.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

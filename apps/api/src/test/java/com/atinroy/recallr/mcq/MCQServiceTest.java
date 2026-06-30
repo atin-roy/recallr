@@ -1,15 +1,16 @@
 package com.atinroy.recallr.mcq;
 
 import com.atinroy.recallr.common.BadRequestException;
-import com.atinroy.recallr.mcq.dto.MCQResponse;
-import com.atinroy.recallr.mcq.dto.MCQUpdateRequest;
+import com.atinroy.recallr.domain.mcq.*;
+import com.atinroy.recallr.domain.mcq.dto.MCQResponse;
+import com.atinroy.recallr.domain.mcq.dto.MCQUpdateRequest;
 import com.atinroy.recallr.security.AuthenticatedUserProvider;
-import com.atinroy.recallr.subject.Subject;
-import com.atinroy.recallr.subject.SubjectNotFoundException;
-import com.atinroy.recallr.subject.SubjectRepository;
-import com.atinroy.recallr.topic.Topic;
-import com.atinroy.recallr.topic.TopicRepository;
-import com.atinroy.recallr.user.User;
+import com.atinroy.recallr.domain.subject.Subject;
+import com.atinroy.recallr.domain.subject.SubjectNotFoundException;
+import com.atinroy.recallr.domain.subject.SubjectRepository;
+import com.atinroy.recallr.domain.topic.Topic;
+import com.atinroy.recallr.domain.topic.TopicRepository;
+import com.atinroy.recallr.domain.user.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,13 +28,16 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class MCQServiceTest {
 
-    @Mock MCQRepository mcqRepository;
-    @Mock MCQMapper mcqMapper;
+    @Mock
+    MCQRepository mcqRepository;
+    @Mock
+    MCQMapper mcqMapper;
     @Mock SubjectRepository subjectRepository;
     @Mock TopicRepository topicRepository;
     @Mock AuthenticatedUserProvider authenticatedUserProvider;
 
-    @InjectMocks MCQService mcqService;
+    @InjectMocks
+    MCQService mcqService;
 
     private User user;
     private Subject subject;

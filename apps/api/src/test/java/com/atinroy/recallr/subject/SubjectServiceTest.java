@@ -1,10 +1,11 @@
 package com.atinroy.recallr.subject;
 
+import com.atinroy.recallr.domain.subject.*;
 import com.atinroy.recallr.security.AuthenticatedUserProvider;
-import com.atinroy.recallr.subject.dto.SubjectRequest;
-import com.atinroy.recallr.subject.dto.SubjectResponse;
-import com.atinroy.recallr.subject.dto.SubjectUpdateRequest;
-import com.atinroy.recallr.user.User;
+import com.atinroy.recallr.domain.subject.dto.SubjectRequest;
+import com.atinroy.recallr.domain.subject.dto.SubjectResponse;
+import com.atinroy.recallr.domain.subject.dto.SubjectUpdateRequest;
+import com.atinroy.recallr.domain.user.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,11 +22,14 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class SubjectServiceTest {
 
-    @Mock SubjectRepository subjectRepository;
-    @Mock SubjectMapper subjectMapper;
+    @Mock
+    SubjectRepository subjectRepository;
+    @Mock
+    SubjectMapper subjectMapper;
     @Mock AuthenticatedUserProvider authenticatedUserProvider;
 
-    @InjectMocks SubjectService subjectService;
+    @InjectMocks
+    SubjectService subjectService;
 
     private User user;
     private Subject subject;

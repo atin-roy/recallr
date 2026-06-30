@@ -1,17 +1,17 @@
 package com.atinroy.recallr.note;
 
 import com.atinroy.recallr.common.BadRequestException;
-import com.atinroy.recallr.note.dto.NoteRequest;
-import com.atinroy.recallr.note.dto.NoteResponse;
-import com.atinroy.recallr.note.dto.NoteUpdateRequest;
-import com.atinroy.recallr.note.dto.NoteUpdateResponse;
+import com.atinroy.recallr.domain.note.*;
+import com.atinroy.recallr.domain.note.dto.NoteRequest;
+import com.atinroy.recallr.domain.note.dto.NoteResponse;
+import com.atinroy.recallr.domain.note.dto.NoteUpdateRequest;
 import com.atinroy.recallr.security.AuthenticatedUserProvider;
-import com.atinroy.recallr.subject.Subject;
-import com.atinroy.recallr.subject.SubjectNotFoundException;
-import com.atinroy.recallr.subject.SubjectRepository;
-import com.atinroy.recallr.topic.Topic;
-import com.atinroy.recallr.topic.TopicRepository;
-import com.atinroy.recallr.user.User;
+import com.atinroy.recallr.domain.subject.Subject;
+import com.atinroy.recallr.domain.subject.SubjectNotFoundException;
+import com.atinroy.recallr.domain.subject.SubjectRepository;
+import com.atinroy.recallr.domain.topic.Topic;
+import com.atinroy.recallr.domain.topic.TopicRepository;
+import com.atinroy.recallr.domain.user.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,13 +29,16 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class NoteServiceTest {
 
-    @Mock NoteRepository noteRepository;
-    @Mock NoteMapper noteMapper;
+    @Mock
+    NoteRepository noteRepository;
+    @Mock
+    NoteMapper noteMapper;
     @Mock SubjectRepository subjectRepository;
     @Mock TopicRepository topicRepository;
     @Mock AuthenticatedUserProvider authenticatedUserProvider;
 
-    @InjectMocks NoteService noteService;
+    @InjectMocks
+    NoteService noteService;
 
     private User user;
     private Subject subject;

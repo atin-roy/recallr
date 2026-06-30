@@ -1,9 +1,10 @@
 package com.atinroy.recallr.note;
 
-import com.atinroy.recallr.note.dto.NoteLinkRequest;
-import com.atinroy.recallr.note.dto.NoteLinkResponse;
+import com.atinroy.recallr.domain.note.*;
+import com.atinroy.recallr.domain.note.dto.NoteLinkRequest;
+import com.atinroy.recallr.domain.note.dto.NoteLinkResponse;
 import com.atinroy.recallr.security.AuthenticatedUserProvider;
-import com.atinroy.recallr.user.User;
+import com.atinroy.recallr.domain.user.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
