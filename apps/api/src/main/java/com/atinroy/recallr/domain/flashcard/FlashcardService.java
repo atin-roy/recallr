@@ -33,6 +33,7 @@ public class FlashcardService {
         return flashcardMapper.toResponse(flashcardRepository.save(card));
     }
 
+    @Transactional(readOnly = true)
     public FlashcardResponse getFlashcardById(UUID deckId, UUID flashcardId) {
         UUID userId = authenticatedUserProvider.getCurrentUser().getId();
         deckRepository.findByIdAndUserId(deckId, userId)
@@ -42,6 +43,7 @@ public class FlashcardService {
         return flashcardMapper.toResponse(card);
     }
 
+    @Transactional(readOnly = true)
     public List<FlashcardResponse> listFlashcardsByDeck(UUID deckId) {
         UUID userId = authenticatedUserProvider.getCurrentUser().getId();
         deckRepository.findByIdAndUserId(deckId, userId)
