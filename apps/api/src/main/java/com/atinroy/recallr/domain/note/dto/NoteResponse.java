@@ -4,6 +4,5 @@ public record NoteResponse(
         String id,
         String title,
         String content,
-        String subjectId,
-        String topicId
+        String notebookId
 ) {}

@@ -4,6 +4,5 @@ public record NoteUpdateResponse(
         String id,
         String title,
         String content,
-        String subjectId,
-        String topicId
+        String notebookId
 ) {}

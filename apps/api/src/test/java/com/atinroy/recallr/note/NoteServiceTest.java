@@ -1,17 +1,14 @@
 package com.atinroy.recallr.note;
 
-import com.atinroy.recallr.common.BadRequestException;
+import com.atinroy.recallr.domain.notebook.Notebook;
+import com.atinroy.recallr.domain.notebook.NotebookNotFoundException;
+import com.atinroy.recallr.domain.notebook.NotebookRepository;
 import com.atinroy.recallr.domain.note.*;
 import com.atinroy.recallr.domain.note.dto.NoteRequest;
 import com.atinroy.recallr.domain.note.dto.NoteResponse;
 import com.atinroy.recallr.domain.note.dto.NoteUpdateRequest;
-import com.atinroy.recallr.security.AuthenticatedUserProvider;
-import com.atinroy.recallr.domain.subject.Subject;
-import com.atinroy.recallr.domain.subject.SubjectNotFoundException;
-import com.atinroy.recallr.domain.subject.SubjectRepository;
-import com.atinroy.recallr.domain.topic.Topic;
-import com.atinroy.recallr.domain.topic.TopicRepository;
 import com.atinroy.recallr.domain.user.User;
+import com.atinroy.recallr.security.AuthenticatedUserProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,7 +20,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,151 +29,122 @@ class NoteServiceTest {
     NoteRepository noteRepository;
     @Mock
     NoteMapper noteMapper;
-    @Mock SubjectRepository subjectRepository;
-    @Mock TopicRepository topicRepository;
-    @Mock AuthenticatedUserProvider authenticatedUserProvider;
+    @Mock
+    NotebookRepository notebookRepository;
+    @Mock
+    AuthenticatedUserProvider authenticatedUserProvider;
 
     @InjectMocks
     NoteService noteService;
 
     private User user;
-    private Subject subject;
-    private Topic topic;
+    private Notebook notebook;
     private Note note;
 
     @BeforeEach
     void setUp() {
         user = new User();
-        subject = new Subject();
-        subject.setUser(user);
-        topic = new Topic();
-        topic.setSubject(subject);
+        notebook = new Notebook();
+        notebook.setUser(user);
         note = new Note();
-        note.setSubject(subject);
+        note.setNotebook(notebook);
     }
 
     @Test
-    void createNote_whenSubjectNotFound_throwsSubjectNotFoundException() {
-        UUID subjectId = UUID.randomUUID();
+    void createNote_whenNotebookNotFound_throwsNotebookNotFoundException() {
+        UUID notebookId = UUID.randomUUID();
         when(authenticatedUserProvider.getCurrentUser()).thenReturn(user);
-        when(subjectRepository.findByIdAndUserId(subjectId, user.getId())).thenReturn(Optional.empty());
+        when(notebookRepository.findByIdAndUserId(notebookId, user.getId())).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> noteService.createNote(subjectId, new NoteRequest("T", null, null)))
-                .isInstanceOf(SubjectNotFoundException.class);
+        assertThatThrownBy(() -> noteService.createNote(notebookId, new NoteRequest("T", null)))
+                .isInstanceOf(NotebookNotFoundException.class);
     }
 
     @Test
-    void createNote_withTopicNotInSubject_throwsBadRequestException() {
-        UUID topicId = UUID.randomUUID();
+    void createNote_withValidRequest_returnsResponse() {
+        NoteRequest request = new NoteRequest("Title", "Content");
+        NoteResponse expected = new NoteResponse(note.getId().toString(), "Title", "Content", notebook.getId().toString());
         when(authenticatedUserProvider.getCurrentUser()).thenReturn(user);
-        when(subjectRepository.findByIdAndUserId(subject.getId(), user.getId())).thenReturn(Optional.of(subject));
-        when(topicRepository.findByIdAndSubjectId(topicId, subject.getId())).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> noteService.createNote(subject.getId(), new NoteRequest("T", null, topicId)))
-                .isInstanceOf(BadRequestException.class);
-    }
-
-    @Test
-    void createNote_withoutTopic_returnsResponse() {
-        NoteRequest request = new NoteRequest("Title", "Content", null);
-        NoteResponse expected = new NoteResponse(note.getId().toString(), "Title", "Content", subject.getId().toString(), null);
-        when(authenticatedUserProvider.getCurrentUser()).thenReturn(user);
-        when(subjectRepository.findByIdAndUserId(subject.getId(), user.getId())).thenReturn(Optional.of(subject));
-        when(noteMapper.toEntity(request, subject, null)).thenReturn(note);
+        when(notebookRepository.findByIdAndUserId(notebook.getId(), user.getId())).thenReturn(Optional.of(notebook));
+        when(noteMapper.toEntity(request, notebook)).thenReturn(note);
         when(noteRepository.save(note)).thenReturn(note);
         when(noteMapper.toResponse(note)).thenReturn(expected);
 
-        assertThat(noteService.createNote(subject.getId(), request)).isEqualTo(expected);
+        assertThat(noteService.createNote(notebook.getId(), request)).isEqualTo(expected);
     }
 
     @Test
-    void createNote_withValidTopic_assignsTopic() {
-        NoteRequest request = new NoteRequest("Title", "Content", topic.getId());
-        NoteResponse expected = new NoteResponse(note.getId().toString(), "Title", "Content", subject.getId().toString(), topic.getId().toString());
+    void getNoteById_whenNotebookNotFound_throwsNotebookNotFoundException() {
+        UUID notebookId = UUID.randomUUID();
         when(authenticatedUserProvider.getCurrentUser()).thenReturn(user);
-        when(subjectRepository.findByIdAndUserId(subject.getId(), user.getId())).thenReturn(Optional.of(subject));
-        when(topicRepository.findByIdAndSubjectId(topic.getId(), subject.getId())).thenReturn(Optional.of(topic));
-        when(noteMapper.toEntity(request, subject, topic)).thenReturn(note);
-        when(noteRepository.save(note)).thenReturn(note);
-        when(noteMapper.toResponse(note)).thenReturn(expected);
+        when(notebookRepository.findByIdAndUserId(notebookId, user.getId())).thenReturn(Optional.empty());
 
-        assertThat(noteService.createNote(subject.getId(), request)).isEqualTo(expected);
+        assertThatThrownBy(() -> noteService.getNoteById(notebookId, UUID.randomUUID()))
+                .isInstanceOf(NotebookNotFoundException.class);
     }
 
     @Test
-    void getNoteById_whenNotFound_throwsNoteNotFoundException() {
+    void getNoteById_whenNoteNotFound_throwsNoteNotFoundException() {
         UUID noteId = UUID.randomUUID();
         when(authenticatedUserProvider.getCurrentUser()).thenReturn(user);
-        when(subjectRepository.findByIdAndUserId(subject.getId(), user.getId())).thenReturn(Optional.of(subject));
-        when(noteRepository.findByIdAndSubjectId(noteId, subject.getId())).thenReturn(Optional.empty());
+        when(notebookRepository.findByIdAndUserId(notebook.getId(), user.getId())).thenReturn(Optional.of(notebook));
+        when(noteRepository.findByIdAndNotebookId(noteId, notebook.getId())).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> noteService.getNoteById(subject.getId(), noteId))
+        assertThatThrownBy(() -> noteService.getNoteById(notebook.getId(), noteId))
                 .isInstanceOf(NoteNotFoundException.class);
     }
 
     @Test
     void getNoteById_whenFound_returnsResponse() {
-        NoteResponse expected = new NoteResponse(note.getId().toString(), "T", "C", subject.getId().toString(), null);
+        NoteResponse expected = new NoteResponse(note.getId().toString(), "T", "C", notebook.getId().toString());
         when(authenticatedUserProvider.getCurrentUser()).thenReturn(user);
-        when(subjectRepository.findByIdAndUserId(subject.getId(), user.getId())).thenReturn(Optional.of(subject));
-        when(noteRepository.findByIdAndSubjectId(note.getId(), subject.getId())).thenReturn(Optional.of(note));
+        when(notebookRepository.findByIdAndUserId(notebook.getId(), user.getId())).thenReturn(Optional.of(notebook));
+        when(noteRepository.findByIdAndNotebookId(note.getId(), notebook.getId())).thenReturn(Optional.of(note));
         when(noteMapper.toResponse(note)).thenReturn(expected);
 
-        assertThat(noteService.getNoteById(subject.getId(), note.getId())).isEqualTo(expected);
+        assertThat(noteService.getNoteById(notebook.getId(), note.getId())).isEqualTo(expected);
     }
 
     @Test
-    void deleteNote_whenNotFound_throwsNoteNotFoundException() {
-        UUID noteId = UUID.randomUUID();
+    void updateNote_whenNotebookNotFound_throwsNotebookNotFoundException() {
+        UUID notebookId = UUID.randomUUID();
         when(authenticatedUserProvider.getCurrentUser()).thenReturn(user);
-        when(subjectRepository.findByIdAndUserId(subject.getId(), user.getId())).thenReturn(Optional.of(subject));
-        when(noteRepository.findByIdAndSubjectId(noteId, subject.getId())).thenReturn(Optional.empty());
+        when(notebookRepository.findByIdAndUserId(notebookId, user.getId())).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> noteService.deleteNote(subject.getId(), noteId))
-                .isInstanceOf(NoteNotFoundException.class);
-    }
-
-    @Test
-    void deleteNote_whenFound_deletesNote() {
-        when(authenticatedUserProvider.getCurrentUser()).thenReturn(user);
-        when(subjectRepository.findByIdAndUserId(subject.getId(), user.getId())).thenReturn(Optional.of(subject));
-        when(noteRepository.findByIdAndSubjectId(note.getId(), subject.getId())).thenReturn(Optional.of(note));
-
-        noteService.deleteNote(subject.getId(), note.getId());
-
-        verify(noteRepository).delete(note);
-    }
-
-    @Test
-    void updateNote_whenSubjectNotFound_throwsSubjectNotFoundException() {
-        UUID subjectId = UUID.randomUUID();
-        when(authenticatedUserProvider.getCurrentUser()).thenReturn(user);
-        when(subjectRepository.findByIdAndUserId(subjectId, user.getId())).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> noteService.updateNote(subjectId, note.getId(), new NoteUpdateRequest("T", null, null)))
-                .isInstanceOf(SubjectNotFoundException.class);
+        assertThatThrownBy(() -> noteService.updateNote(notebookId, note.getId(), new NoteUpdateRequest("T", null)))
+                .isInstanceOf(NotebookNotFoundException.class);
     }
 
     @Test
     void updateNote_whenNoteNotFound_throwsNoteNotFoundException() {
         UUID noteId = UUID.randomUUID();
         when(authenticatedUserProvider.getCurrentUser()).thenReturn(user);
-        when(subjectRepository.findByIdAndUserId(subject.getId(), user.getId())).thenReturn(Optional.of(subject));
-        when(noteRepository.findByIdAndSubjectId(noteId, subject.getId())).thenReturn(Optional.empty());
+        when(notebookRepository.findByIdAndUserId(notebook.getId(), user.getId())).thenReturn(Optional.of(notebook));
+        when(noteRepository.findByIdAndNotebookId(noteId, notebook.getId())).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> noteService.updateNote(subject.getId(), noteId, new NoteUpdateRequest("T", null, null)))
+        assertThatThrownBy(() -> noteService.updateNote(notebook.getId(), noteId, new NoteUpdateRequest("T", null)))
                 .isInstanceOf(NoteNotFoundException.class);
     }
 
     @Test
-    void updateNote_withTopicNotInSubject_throwsBadRequestException() {
-        UUID topicId = UUID.randomUUID();
+    void deleteNote_whenNoteNotFound_throwsNoteNotFoundException() {
+        UUID noteId = UUID.randomUUID();
         when(authenticatedUserProvider.getCurrentUser()).thenReturn(user);
-        when(subjectRepository.findByIdAndUserId(subject.getId(), user.getId())).thenReturn(Optional.of(subject));
-        when(noteRepository.findByIdAndSubjectId(note.getId(), subject.getId())).thenReturn(Optional.of(note));
-        when(topicRepository.findByIdAndSubjectId(topicId, subject.getId())).thenReturn(Optional.empty());
+        when(notebookRepository.findByIdAndUserId(notebook.getId(), user.getId())).thenReturn(Optional.of(notebook));
+        when(noteRepository.findByIdAndNotebookId(noteId, notebook.getId())).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> noteService.updateNote(subject.getId(), note.getId(), new NoteUpdateRequest("T", null, topicId)))
-                .isInstanceOf(BadRequestException.class);
+        assertThatThrownBy(() -> noteService.deleteNote(notebook.getId(), noteId))
+                .isInstanceOf(NoteNotFoundException.class);
+    }
+
+    @Test
+    void deleteNote_whenFound_deletesNote() {
+        when(authenticatedUserProvider.getCurrentUser()).thenReturn(user);
+        when(notebookRepository.findByIdAndUserId(notebook.getId(), user.getId())).thenReturn(Optional.of(notebook));
+        when(noteRepository.findByIdAndNotebookId(note.getId(), notebook.getId())).thenReturn(Optional.of(note));
+
+        noteService.deleteNote(notebook.getId(), note.getId());
+
+        verify(noteRepository).delete(note);
     }
 }

@@ -2,11 +2,10 @@ package com.atinroy.recallr.global;
 
 import com.atinroy.recallr.auth.InvalidTokenException;
 import com.atinroy.recallr.common.BadRequestException;
-import com.atinroy.recallr.domain.mcq.MCQNotFoundException;
+import com.atinroy.recallr.domain.deck.DeckNotFoundException;
+import com.atinroy.recallr.domain.notebook.NotebookNotFoundException;
 import com.atinroy.recallr.domain.note.NoteLinkNotFoundException;
 import com.atinroy.recallr.domain.note.NoteNotFoundException;
-import com.atinroy.recallr.domain.subject.SubjectNotFoundException;
-import com.atinroy.recallr.domain.topic.TopicNotFoundException;
 import com.atinroy.recallr.domain.user.EmailAlreadyExistsException;
 import com.atinroy.recallr.domain.user.UserNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -50,7 +49,7 @@ public class GlobalControllerAdvice {
         return new ResponseEntity<>(errorBody(HttpStatus.UNAUTHORIZED, "Authentication required"), HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler({NoteNotFoundException.class, NoteLinkNotFoundException.class, MCQNotFoundException.class, SubjectNotFoundException.class, TopicNotFoundException.class})
+    @ExceptionHandler({NoteNotFoundException.class, NoteLinkNotFoundException.class, NotebookNotFoundException.class, DeckNotFoundException.class})
     public ResponseEntity<Map<String, Object>> handleNotFound(RuntimeException e) {
         return new ResponseEntity<>(errorBody(HttpStatus.NOT_FOUND, e.getMessage()), HttpStatus.NOT_FOUND);
     }

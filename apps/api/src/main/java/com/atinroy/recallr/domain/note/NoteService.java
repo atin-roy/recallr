@@ -1,16 +1,13 @@
 package com.atinroy.recallr.domain.note;
 
-import com.atinroy.recallr.common.BadRequestException;
+import com.atinroy.recallr.domain.notebook.Notebook;
+import com.atinroy.recallr.domain.notebook.NotebookNotFoundException;
+import com.atinroy.recallr.domain.notebook.NotebookRepository;
 import com.atinroy.recallr.domain.note.dto.NoteRequest;
 import com.atinroy.recallr.domain.note.dto.NoteResponse;
 import com.atinroy.recallr.domain.note.dto.NoteUpdateRequest;
 import com.atinroy.recallr.domain.note.dto.NoteUpdateResponse;
 import com.atinroy.recallr.security.AuthenticatedUserProvider;
-import com.atinroy.recallr.domain.subject.Subject;
-import com.atinroy.recallr.domain.subject.SubjectNotFoundException;
-import com.atinroy.recallr.domain.subject.SubjectRepository;
-import com.atinroy.recallr.domain.topic.Topic;
-import com.atinroy.recallr.domain.topic.TopicRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,53 +20,44 @@ public class NoteService {
 
     private final NoteRepository noteRepository;
     private final NoteMapper noteMapper;
-    private final SubjectRepository subjectRepository;
-    private final TopicRepository topicRepository;
+    private final NotebookRepository notebookRepository;
     private final AuthenticatedUserProvider authenticatedUserProvider;
 
     @Transactional
-    public NoteResponse createNote(UUID subjectId, NoteRequest request) {
-        Subject subject = resolveSubject(subjectId);
-        Topic topic = resolveTopic(request.topicId(), subjectId);
-        Note saved = noteRepository.save(noteMapper.toEntity(request, subject, topic));
+    public NoteResponse createNote(UUID notebookId, NoteRequest request) {
+        Notebook notebook = resolveNotebook(notebookId);
+        Note saved = noteRepository.save(noteMapper.toEntity(request, notebook));
         return noteMapper.toResponse(saved);
     }
 
-    public NoteResponse getNoteById(UUID subjectId, UUID noteId) {
-        resolveSubject(subjectId);
-        Note note = noteRepository.findByIdAndSubjectId(noteId, subjectId)
+    public NoteResponse getNoteById(UUID notebookId, UUID noteId) {
+        resolveNotebook(notebookId);
+        Note note = noteRepository.findByIdAndNotebookId(noteId, notebookId)
                 .orElseThrow(() -> new NoteNotFoundException("Note not found"));
         return noteMapper.toResponse(note);
     }
 
     @Transactional
-    public NoteUpdateResponse updateNote(UUID subjectId, UUID noteId, NoteUpdateRequest request) {
-        resolveSubject(subjectId);
-        Note note = noteRepository.findByIdAndSubjectId(noteId, subjectId)
+    public NoteUpdateResponse updateNote(UUID notebookId, UUID noteId, NoteUpdateRequest request) {
+        resolveNotebook(notebookId);
+        Note note = noteRepository.findByIdAndNotebookId(noteId, notebookId)
                 .orElseThrow(() -> new NoteNotFoundException("Note not found"));
         note.setTitle(request.title());
         note.setContent(request.content());
-        note.setTopic(resolveTopic(request.topicId(), subjectId));
         return noteMapper.toUpdateResponse(note);
     }
 
     @Transactional
-    public void deleteNote(UUID subjectId, UUID noteId) {
-        resolveSubject(subjectId);
-        Note note = noteRepository.findByIdAndSubjectId(noteId, subjectId)
+    public void deleteNote(UUID notebookId, UUID noteId) {
+        resolveNotebook(notebookId);
+        Note note = noteRepository.findByIdAndNotebookId(noteId, notebookId)
                 .orElseThrow(() -> new NoteNotFoundException("Note not found"));
         noteRepository.delete(note);
     }
 
-    private Subject resolveSubject(UUID subjectId) {
+    private Notebook resolveNotebook(UUID notebookId) {
         UUID userId = authenticatedUserProvider.getCurrentUser().getId();
-        return subjectRepository.findByIdAndUserId(subjectId, userId)
-                .orElseThrow(() -> new SubjectNotFoundException("Subject not found"));
-    }
-
-    private Topic resolveTopic(UUID topicId, UUID subjectId) {
-        if (topicId == null) return null;
-        return topicRepository.findByIdAndSubjectId(topicId, subjectId)
-                .orElseThrow(() -> new BadRequestException("Topic not found in subject"));
+        return notebookRepository.findByIdAndUserId(notebookId, userId)
+                .orElseThrow(() -> new NotebookNotFoundException(notebookId));
     }
 }

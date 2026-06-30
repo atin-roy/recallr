@@ -9,5 +9,5 @@ import java.util.UUID;
 @Repository
 public interface NoteRepository extends JpaRepository<Note, UUID> {
     Optional<Note> findByIdAndUserId(UUID noteId, UUID userId);
-    Optional<Note> findByIdAndSubjectId(UUID noteId, UUID subjectId);
+    Optional<Note> findByIdAndNotebookId(UUID noteId, UUID notebookId);
 }

@@ -1,20 +1,18 @@
 package com.atinroy.recallr.domain.note;
 
+import com.atinroy.recallr.domain.notebook.Notebook;
 import com.atinroy.recallr.domain.note.dto.NoteRequest;
 import com.atinroy.recallr.domain.note.dto.NoteResponse;
 import com.atinroy.recallr.domain.note.dto.NoteUpdateResponse;
-import com.atinroy.recallr.domain.subject.Subject;
-import com.atinroy.recallr.domain.topic.Topic;
 import org.springframework.stereotype.Component;
 
 @Component
 public class NoteMapper {
 
-    public Note toEntity(NoteRequest request, Subject subject, Topic topic) {
+    public Note toEntity(NoteRequest request, Notebook notebook) {
         Note note = new Note();
-        note.setUser(subject.getUser());
-        note.setSubject(subject);
-        note.setTopic(topic);
+        note.setUser(notebook.getUser());
+        note.setNotebook(notebook);
         note.setTitle(request.title());
         note.setContent(request.content());
         return note;
@@ -25,8 +23,7 @@ public class NoteMapper {
                 note.getId().toString(),
                 note.getTitle(),
                 note.getContent(),
-                note.getSubject().getId().toString(),
-                note.getTopic() != null ? note.getTopic().getId().toString() : null
+                note.getNotebook().getId().toString()
         );
     }
 
@@ -35,8 +32,7 @@ public class NoteMapper {
                 note.getId().toString(),
                 note.getTitle(),
                 note.getContent(),
-                note.getSubject().getId().toString(),
-                note.getTopic() != null ? note.getTopic().getId().toString() : null
+                note.getNotebook().getId().toString()
         );
     }
 }
