@@ -64,6 +64,14 @@ public class DeckService {
         deckRepository.delete(deck);
     }
 
+    @Transactional(readOnly = true)
+    public List<DeckResponse> listByUser() {
+        UUID userId = authenticatedUserProvider.getCurrentUser().getId();
+        return deckRepository.findByUserId(userId).stream()
+                .map(deckMapper::toResponse)
+                .toList();
+    }
+
     public List<DeckResponse> listByNotebook(UUID notebookId) {
         UUID userId = authenticatedUserProvider.getCurrentUser().getId();
         notebookRepository.findByIdAndUserId(notebookId, userId)

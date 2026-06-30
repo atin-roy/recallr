@@ -3,6 +3,7 @@ package com.atinroy.recallr.domain.flashcard;
 import com.atinroy.recallr.domain.flashcard.dto.FlashcardRequest;
 import com.atinroy.recallr.domain.flashcard.dto.FlashcardResponse;
 import com.atinroy.recallr.domain.flashcard.dto.FlashcardUpdateRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +21,7 @@ public class FlashcardController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public FlashcardResponse createFlashcard(@PathVariable UUID deckId,
-                                              @RequestBody FlashcardRequest request) {
+                                              @RequestBody @Valid FlashcardRequest request) {
         return flashcardService.createFlashcard(deckId, request);
     }
 
@@ -38,7 +39,7 @@ public class FlashcardController {
     @PutMapping("/{flashcardId}")
     public FlashcardResponse updateFlashcard(@PathVariable UUID deckId,
                                               @PathVariable UUID flashcardId,
-                                              @RequestBody FlashcardUpdateRequest request) {
+                                              @RequestBody @Valid FlashcardUpdateRequest request) {
         return flashcardService.updateFlashcard(deckId, flashcardId, request);
     }
 

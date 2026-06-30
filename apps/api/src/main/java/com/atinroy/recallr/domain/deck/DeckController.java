@@ -29,6 +29,11 @@ public class DeckController {
         return deckService.listByNotebook(notebookId);
     }
 
+    @GetMapping("/decks")
+    public List<DeckResponse> listDecks() {
+        return deckService.listByUser();
+    }
+
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/decks")
     public DeckResponse createStandalone(@RequestBody @Valid DeckRequest request) {

@@ -1,5 +1,6 @@
 package com.atinroy.recallr.domain.flashcard;
 
+import com.atinroy.recallr.common.BadRequestException;
 import com.atinroy.recallr.domain.deck.Deck;
 import com.atinroy.recallr.domain.flashcard.dto.*;
 import com.atinroy.recallr.domain.user.User;
@@ -49,6 +50,10 @@ public class FlashcardMapper {
     }
 
     public void applyUpdate(FlashcardUpdateRequest request, Flashcard card) {
+        if ((request instanceof BasicFlashcardUpdateRequest && !(card instanceof BasicFlashcard)) ||
+            (request instanceof MCQFlashcardUpdateRequest && !(card instanceof MCQFlashcard))) {
+            throw new BadRequestException("Update request type does not match flashcard type");
+        }
         card.setQuestion(request.getQuestion());
         if (request instanceof BasicFlashcardUpdateRequest r && card instanceof BasicFlashcard c) {
             c.setAnswer(r.getAnswer());

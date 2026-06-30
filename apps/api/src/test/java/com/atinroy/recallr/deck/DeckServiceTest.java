@@ -16,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -148,5 +149,24 @@ class DeckServiceTest {
 
         assertThatThrownBy(() -> deckService.deleteDeck(id))
                 .isInstanceOf(DeckNotFoundException.class);
+    }
+
+    @Test
+    void listByUser_returnsAllUserDecks() {
+        User localUser = new User();
+        UUID userId = localUser.getId();
+        Deck deck1 = new Deck(); deck1.setUser(localUser);
+        Deck deck2 = new Deck(); deck2.setUser(localUser);
+        DeckResponse resp1 = new DeckResponse(null, null, "Deck 1", null, null, null);
+        DeckResponse resp2 = new DeckResponse(null, null, "Deck 2", null, null, null);
+
+        when(authenticatedUserProvider.getCurrentUser()).thenReturn(localUser);
+        when(deckRepository.findByUserId(userId)).thenReturn(List.of(deck1, deck2));
+        when(deckMapper.toResponse(deck1)).thenReturn(resp1);
+        when(deckMapper.toResponse(deck2)).thenReturn(resp2);
+
+        List<DeckResponse> result = deckService.listByUser();
+
+        assertThat(result).containsExactly(resp1, resp2);
     }
 }

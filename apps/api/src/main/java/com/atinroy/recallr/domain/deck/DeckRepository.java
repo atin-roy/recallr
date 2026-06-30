@@ -11,4 +11,5 @@ import java.util.UUID;
 public interface DeckRepository extends JpaRepository<Deck, UUID> {
     Optional<Deck> findByIdAndUserId(UUID id, UUID userId);
     List<Deck> findByNotebookId(UUID notebookId);
+    List<Deck> findByUserId(UUID userId);
 }
