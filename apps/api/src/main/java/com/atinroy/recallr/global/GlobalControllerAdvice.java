@@ -3,6 +3,7 @@ package com.atinroy.recallr.global;
 import com.atinroy.recallr.auth.InvalidTokenException;
 import com.atinroy.recallr.common.BadRequestException;
 import com.atinroy.recallr.domain.deck.DeckNotFoundException;
+import com.atinroy.recallr.domain.flashcard.FlashcardNotFoundException;
 import com.atinroy.recallr.domain.notebook.NotebookNotFoundException;
 import com.atinroy.recallr.domain.note.NoteLinkNotFoundException;
 import com.atinroy.recallr.domain.note.NoteNotFoundException;
@@ -49,7 +50,7 @@ public class GlobalControllerAdvice {
         return new ResponseEntity<>(errorBody(HttpStatus.UNAUTHORIZED, "Authentication required"), HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler({NoteNotFoundException.class, NoteLinkNotFoundException.class, NotebookNotFoundException.class, DeckNotFoundException.class})
+    @ExceptionHandler({NoteNotFoundException.class, NoteLinkNotFoundException.class, NotebookNotFoundException.class, DeckNotFoundException.class, FlashcardNotFoundException.class})
     public ResponseEntity<Map<String, Object>> handleNotFound(RuntimeException e) {
         return new ResponseEntity<>(errorBody(HttpStatus.NOT_FOUND, e.getMessage()), HttpStatus.NOT_FOUND);
     }
