@@ -40,7 +40,7 @@ CREATE TABLE refresh_tokens (
 
 CREATE INDEX idx_refresh_tokens_user_id ON refresh_tokens(user_id);
 
-CREATE TABLE subjects (
+CREATE TABLE notebooks (
     id          UUID         PRIMARY KEY,
     user_id     UUID         NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     name        VARCHAR(200) NOT NULL,
@@ -49,9 +49,10 @@ CREATE TABLE subjects (
     updated_at  TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
-CREATE TABLE topics (
+CREATE TABLE decks (
     id          UUID         PRIMARY KEY,
-    subject_id  UUID         NOT NULL REFERENCES subjects(id) ON DELETE CASCADE,
+    user_id     UUID         NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    notebook_id UUID         REFERENCES notebooks(id) ON DELETE CASCADE,
     name        VARCHAR(200) NOT NULL,
     description TEXT,
     created_at  TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -59,14 +60,13 @@ CREATE TABLE topics (
 );
 
 CREATE TABLE notes (
-    id         UUID          PRIMARY KEY,
-    user_id    UUID          NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    subject_id UUID          NOT NULL REFERENCES subjects(id) ON DELETE CASCADE,
-    topic_id   UUID          REFERENCES topics(id) ON DELETE SET NULL,
-    title      VARCHAR(100),
-    content    TEXT,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    updated_at TIMESTAMP WITH TIME ZONE NOT NULL
+    id          UUID          PRIMARY KEY,
+    user_id     UUID          NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    notebook_id UUID          NOT NULL REFERENCES notebooks(id) ON DELETE CASCADE,
+    title       VARCHAR(100),
+    content     TEXT,
+    created_at  TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at  TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
 CREATE TABLE note_links (
@@ -80,19 +80,25 @@ CREATE TABLE note_links (
     CONSTRAINT uq_note_links UNIQUE (source_note_id, target_note_id)
 );
 
-CREATE TABLE mcqs (
-    id                 UUID PRIMARY KEY,
-    user_id            UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    subject_id         UUID NOT NULL REFERENCES subjects(id) ON DELETE CASCADE,
-    topic_id           UUID REFERENCES topics(id) ON DELETE SET NULL,
-    question           VARCHAR(255),
-    correct_option_index INT NOT NULL,
-    explanation        VARCHAR(1000),
-    created_at         TIMESTAMP WITH TIME ZONE NOT NULL,
-    updated_at         TIMESTAMP WITH TIME ZONE NOT NULL
+CREATE TABLE flashcards (
+    id                   UUID         PRIMARY KEY,
+    type                 VARCHAR(31)  NOT NULL,
+    user_id              UUID         NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    deck_id              UUID         NOT NULL REFERENCES decks(id) ON DELETE CASCADE,
+    question             VARCHAR(255),
+    answer               TEXT,
+    reverse              BOOLEAN,
+    correct_option_index INT,
+    explanation          VARCHAR(1000),
+    created_at           TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at           TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
-CREATE TABLE mcqs_options (
-    mcq_id  UUID    NOT NULL REFERENCES mcqs(id) ON DELETE CASCADE,
-    options VARCHAR(255)
+CREATE TABLE flashcard_options (
+    flashcard_id UUID         NOT NULL REFERENCES flashcards(id) ON DELETE CASCADE,
+    options      VARCHAR(255)
 );
+
+CREATE INDEX idx_decks_notebook_id ON decks(notebook_id);
+CREATE INDEX idx_notes_notebook_id ON notes(notebook_id);
+CREATE INDEX idx_flashcards_deck_id ON flashcards(deck_id);
