@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { PaperCard } from "@/components/ui/PaperCard";
-import { StackedCardMark } from "@/components/StackedCardMark";
+import { LogoMark } from "@/components/LogoMark";
 import { apiFetch } from "@/lib/api";
 import styles from "./page.module.css";
 
@@ -55,7 +55,7 @@ export default function DashboardPage() {
 
       {notebooks.length === 0 ? (
         <div className={styles.empty}>
-          <StackedCardMark size={96} />
+          <LogoMark size={96} />
           <p className={styles.emptyTitle}>No notebooks yet</p>
           <p>Your decks and notes will live inside notebooks.</p>
         </div>

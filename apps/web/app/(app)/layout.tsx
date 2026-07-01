@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AuthProvider, useAuth } from "@/components/auth/AuthProvider";
 import { AppShell } from "@/components/shell/AppShell";
-import { StackedCardMark } from "@/components/StackedCardMark";
+import { LogoMark } from "@/components/LogoMark";
 import styles from "./loading-shell.module.css";
 
 function Gate({ children }: { children: React.ReactNode }) {
@@ -18,7 +18,7 @@ function Gate({ children }: { children: React.ReactNode }) {
   if (status !== "authed" || !user) {
     return (
       <div className={styles.center}>
-        <StackedCardMark size={56} />
+        <LogoMark size={56} />
         <span className={styles.label}>Loading…</span>
       </div>
     );

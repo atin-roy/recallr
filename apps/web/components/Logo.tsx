@@ -1,10 +1,10 @@
-import { StackedCardMark } from "./StackedCardMark";
+import { LogoMark } from "./LogoMark";
 import styles from "./Logo.module.css";
 
 export function Logo() {
   return (
     <span className={styles.logo}>
-      <StackedCardMark size={32} />
+      <LogoMark size={32} />
       <span className={styles.wordmark}>recallr</span>
     </span>
   );

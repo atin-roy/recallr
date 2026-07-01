@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
-import { StackedCardMark } from "@/components/StackedCardMark";
+import { LogoMark } from "@/components/LogoMark";
 import styles from "./page.module.css";
 
 export default function Home() {
@@ -26,7 +26,7 @@ export default function Home() {
           </div>
         </div>
         <div className={styles.art}>
-          <StackedCardMark size={220} />
+          <LogoMark size={220} />
         </div>
       </section>
     </main>
