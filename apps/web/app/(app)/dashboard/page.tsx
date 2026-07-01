@@ -33,10 +33,18 @@ export default function DashboardPage() {
   }, []);
 
   if (status === "loading") {
-    return <p className={styles.state}>Loading your notebooks…</p>;
+    return (
+      <p className={styles.state} role="status">
+        Loading your notebooks…
+      </p>
+    );
   }
   if (status === "error") {
-    return <p className={styles.state}>Couldn&apos;t load your notebooks. Try again.</p>;
+    return (
+      <p className={styles.state} role="alert">
+        Couldn&apos;t load your notebooks. Try again.
+      </p>
+    );
   }
 
   return (

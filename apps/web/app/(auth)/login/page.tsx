@@ -67,7 +67,11 @@ export default function LoginPage() {
               </Link>
             }
           />
-          {error && <p className={styles.error}>{error}</p>}
+          {error && (
+            <p className={styles.error} role="alert">
+              {error}
+            </p>
+          )}
           <Button type="submit">Sign in</Button>
         </form>
 

@@ -74,9 +74,15 @@ export default function RegisterPage() {
             required
           />
           {success && (
-            <p className={styles.success}>Account created! Redirecting to login&hellip;</p>
+            <p className={styles.success} role="status">
+              Account created! Redirecting to login&hellip;
+            </p>
           )}
-          {error && <p className={styles.error}>{error}</p>}
+          {error && (
+            <p className={styles.error} role="alert">
+              {error}
+            </p>
+          )}
           <Button type="submit">Create account</Button>
         </form>
 

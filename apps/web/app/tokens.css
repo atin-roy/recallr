@@ -9,6 +9,8 @@
   --yellow: #f5c518;
   --coral: #e0574a;
   --mint: #c9f0dc;
+  --color-text-muted: rgba(26, 26, 26, 0.7);
+  --color-text-soft: rgba(26, 26, 26, 0.8);
 
   /* borders & hard offset shadows */
   --border-w: 2.5px;
