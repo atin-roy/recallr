@@ -1,0 +1,32 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.labelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.label {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+.input {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--ink);
+  background: var(--cream);
+  border: var(--border);
+  border-radius: var(--radius-control);
+  padding: 11px 13px;
+  box-shadow: inset 2px 2px 0 rgba(26, 26, 26, 0.12);
+}
+.input:focus {
+  outline: none;
+  box-shadow: var(--shadow-hard-sm);
+}
+.input::placeholder {
+  color: rgba(26, 26, 26, 0.4);
+}
