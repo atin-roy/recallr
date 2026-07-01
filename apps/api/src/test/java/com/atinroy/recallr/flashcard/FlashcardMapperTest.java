@@ -82,4 +82,65 @@ class FlashcardMapperTest {
         assertThatThrownBy(() -> mapper.applyUpdate(req, card))
                 .isInstanceOf(com.atinroy.recallr.common.BadRequestException.class);
     }
+
+    // ── True/False ────────────────────────────────────────────────────────────
+
+    @Test
+    void toEntity_trueFalse_mapsAllFields() {
+        TrueFalseFlashcardRequest req = new TrueFalseFlashcardRequest();
+        req.setQuestion("The Earth is flat.");
+        req.setCorrectAnswer(false);
+        req.setExplanation("The Earth is an oblate spheroid.");
+
+        Flashcard result = mapper.toEntity(req, user, deck);
+
+        assertThat(result).isInstanceOf(TrueFalseFlashcard.class);
+        TrueFalseFlashcard card = (TrueFalseFlashcard) result;
+        assertThat(card.getQuestion()).isEqualTo("The Earth is flat.");
+        assertThat(card.isCorrectAnswer()).isFalse();
+        assertThat(card.getExplanation()).isEqualTo("The Earth is an oblate spheroid.");
+    }
+
+    @Test
+    void toResponse_trueFalse_mapsAllFields() {
+        TrueFalseFlashcard card = new TrueFalseFlashcard();
+        card.setQuestion("The Earth is flat.");
+        card.setCorrectAnswer(false);
+        card.setExplanation("The Earth is an oblate spheroid.");
+        card.setDeck(deck);
+
+        FlashcardResponse result = mapper.toResponse(card);
+
+        assertThat(result).isInstanceOf(TrueFalseFlashcardResponse.class);
+        TrueFalseFlashcardResponse response = (TrueFalseFlashcardResponse) result;
+        assertThat(response.isCorrectAnswer()).isFalse();
+        assertThat(response.getExplanation()).isEqualTo("The Earth is an oblate spheroid.");
+    }
+
+    @Test
+    void applyUpdate_trueFalse_updatesFields() {
+        TrueFalseFlashcard card = new TrueFalseFlashcard();
+        card.setCorrectAnswer(false);
+        card.setExplanation("Old");
+
+        TrueFalseFlashcardUpdateRequest req = new TrueFalseFlashcardUpdateRequest();
+        req.setQuestion("Updated statement.");
+        req.setCorrectAnswer(true);
+        req.setExplanation("Updated explanation.");
+
+        mapper.applyUpdate(req, card);
+
+        assertThat(card.isCorrectAnswer()).isTrue();
+        assertThat(card.getExplanation()).isEqualTo("Updated explanation.");
+    }
+
+    @Test
+    void applyUpdate_trueFalse_withClozeCard_throwsBadRequestException() {
+        ClozeFlashcard card = new ClozeFlashcard();
+        TrueFalseFlashcardUpdateRequest req = new TrueFalseFlashcardUpdateRequest();
+        req.setQuestion("q");
+
+        assertThatThrownBy(() -> mapper.applyUpdate(req, card))
+                .isInstanceOf(com.atinroy.recallr.common.BadRequestException.class);
+    }
 }

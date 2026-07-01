@@ -34,6 +34,14 @@ public class FlashcardMapper {
             card.setQuestion(r.getQuestion());
             card.setAnswers(r.getAnswers());
             return card;
+        } else if (request instanceof TrueFalseFlashcardRequest r) {
+            TrueFalseFlashcard card = new TrueFalseFlashcard();
+            card.setUser(user);
+            card.setDeck(deck);
+            card.setQuestion(r.getQuestion());
+            card.setCorrectAnswer(r.isCorrectAnswer());
+            card.setExplanation(r.getExplanation());
+            return card;
         }
         throw new IllegalArgumentException("Unknown flashcard type");
     }
@@ -57,6 +65,12 @@ public class FlashcardMapper {
             mapBase(card, r);
             r.setAnswers(c.getAnswers());
             return r;
+        } else if (card instanceof TrueFalseFlashcard c) {
+            TrueFalseFlashcardResponse r = new TrueFalseFlashcardResponse();
+            mapBase(card, r);
+            r.setCorrectAnswer(c.isCorrectAnswer());
+            r.setExplanation(c.getExplanation());
+            return r;
         }
         throw new IllegalArgumentException("Unknown flashcard type");
     }
@@ -64,7 +78,8 @@ public class FlashcardMapper {
     public void applyUpdate(FlashcardUpdateRequest request, Flashcard card) {
         if ((request instanceof BasicFlashcardUpdateRequest && !(card instanceof BasicFlashcard)) ||
             (request instanceof MCQFlashcardUpdateRequest && !(card instanceof MCQFlashcard)) ||
-            (request instanceof ClozeFlashcardUpdateRequest && !(card instanceof ClozeFlashcard))) {
+            (request instanceof ClozeFlashcardUpdateRequest && !(card instanceof ClozeFlashcard)) ||
+            (request instanceof TrueFalseFlashcardUpdateRequest && !(card instanceof TrueFalseFlashcard))) {
             throw new BadRequestException("Update request type does not match flashcard type");
         }
         card.setQuestion(request.getQuestion());
@@ -77,6 +92,9 @@ public class FlashcardMapper {
             c.setExplanation(r.getExplanation());
         } else if (request instanceof ClozeFlashcardUpdateRequest r && card instanceof ClozeFlashcard c) {
             c.setAnswers(r.getAnswers());
+        } else if (request instanceof TrueFalseFlashcardUpdateRequest r && card instanceof TrueFalseFlashcard c) {
+            c.setCorrectAnswer(r.isCorrectAnswer());
+            c.setExplanation(r.getExplanation());
         }
     }
 
