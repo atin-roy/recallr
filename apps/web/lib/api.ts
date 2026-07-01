@@ -32,3 +32,13 @@ export async function apiFetch<T>(
 
   return res.json() as Promise<T>;
 }
+
+export type Me = { id: string; email: string };
+
+export function refreshSession() {
+  return apiFetch<{ accessToken: string }>("/auth/refresh", { method: "POST" });
+}
+
+export function getMe() {
+  return apiFetch<Me>("/auth/me");
+}
