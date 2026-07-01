@@ -1,0 +1,11 @@
+.shell {
+  min-height: 100vh;
+  padding: var(--space-6);
+}
+.container {
+  max-width: 1040px;
+  margin: 0 auto;
+}
+.content {
+  margin-top: var(--space-8);
+}
