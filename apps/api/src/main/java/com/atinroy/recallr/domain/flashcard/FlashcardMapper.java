@@ -27,6 +27,13 @@ public class FlashcardMapper {
             card.setCorrectOptionIndex(r.getCorrectOptionIndex());
             card.setExplanation(r.getExplanation());
             return card;
+        } else if (request instanceof ClozeFlashcardRequest r) {
+            ClozeFlashcard card = new ClozeFlashcard();
+            card.setUser(user);
+            card.setDeck(deck);
+            card.setQuestion(r.getQuestion());
+            card.setAnswers(r.getAnswers());
+            return card;
         }
         throw new IllegalArgumentException("Unknown flashcard type");
     }
@@ -45,13 +52,19 @@ public class FlashcardMapper {
             r.setCorrectOptionIndex(c.getCorrectOptionIndex());
             r.setExplanation(c.getExplanation());
             return r;
+        } else if (card instanceof ClozeFlashcard c) {
+            ClozeFlashcardResponse r = new ClozeFlashcardResponse();
+            mapBase(card, r);
+            r.setAnswers(c.getAnswers());
+            return r;
         }
         throw new IllegalArgumentException("Unknown flashcard type");
     }
 
     public void applyUpdate(FlashcardUpdateRequest request, Flashcard card) {
         if ((request instanceof BasicFlashcardUpdateRequest && !(card instanceof BasicFlashcard)) ||
-            (request instanceof MCQFlashcardUpdateRequest && !(card instanceof MCQFlashcard))) {
+            (request instanceof MCQFlashcardUpdateRequest && !(card instanceof MCQFlashcard)) ||
+            (request instanceof ClozeFlashcardUpdateRequest && !(card instanceof ClozeFlashcard))) {
             throw new BadRequestException("Update request type does not match flashcard type");
         }
         card.setQuestion(request.getQuestion());
@@ -62,6 +75,8 @@ public class FlashcardMapper {
             c.setOptions(r.getOptions());
             c.setCorrectOptionIndex(r.getCorrectOptionIndex());
             c.setExplanation(r.getExplanation());
+        } else if (request instanceof ClozeFlashcardUpdateRequest r && card instanceof ClozeFlashcard c) {
+            c.setAnswers(r.getAnswers());
         }
     }
 

@@ -8,7 +8,8 @@ import lombok.Setter;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
     @JsonSubTypes.Type(value = BasicFlashcardUpdateRequest.class, name = "BASIC"),
-    @JsonSubTypes.Type(value = MCQFlashcardUpdateRequest.class, name = "MCQ")
+    @JsonSubTypes.Type(value = MCQFlashcardUpdateRequest.class, name = "MCQ"),
+    @JsonSubTypes.Type(value = ClozeFlashcardUpdateRequest.class, name = "CLOZE")
 })
 @Getter
 @Setter

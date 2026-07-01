@@ -11,7 +11,8 @@ import java.util.UUID;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
     @JsonSubTypes.Type(value = BasicFlashcardResponse.class, name = "BASIC"),
-    @JsonSubTypes.Type(value = MCQFlashcardResponse.class, name = "MCQ")
+    @JsonSubTypes.Type(value = MCQFlashcardResponse.class, name = "MCQ"),
+    @JsonSubTypes.Type(value = ClozeFlashcardResponse.class, name = "CLOZE")
 })
 @Getter
 @Setter
