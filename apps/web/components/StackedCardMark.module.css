@@ -1,0 +1,29 @@
+.mark {
+  position: relative;
+  flex-shrink: 0;
+}
+.mark span {
+  position: absolute;
+  width: 66%;
+  height: 52%;
+  border: 2.2px solid var(--ink);
+  border-radius: 4px;
+  top: 26%;
+  left: 12%;
+}
+.mark span:nth-child(1) {
+  background: var(--blue);
+  transform: rotate(-14deg);
+}
+.mark span:nth-child(2) {
+  background: var(--lavender);
+  transform: rotate(6deg);
+  top: 12%;
+  left: 18%;
+}
+.mark span:nth-child(3) {
+  background: var(--teal);
+  transform: rotate(-2deg);
+  top: 4%;
+  left: 16%;
+}
