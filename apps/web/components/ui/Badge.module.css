@@ -5,8 +5,8 @@
   font-size: 0.72rem;
   letter-spacing: 0.3px;
   background: var(--cream);
-  border: 2px solid var(--ink);
-  border-radius: 20px;
+  border: var(--border-thin);
+  border-radius: var(--radius-pill);
   padding: 4px 11px;
-  box-shadow: 2px 2px 0 var(--ink);
+  box-shadow: var(--shadow-hard-xs);
 }

@@ -1,14 +1,14 @@
 .track {
   height: 16px;
-  border-radius: 20px;
+  border-radius: var(--radius-pill);
   background: var(--paper);
-  border: 2px solid var(--ink);
+  border: var(--border-thin);
   box-shadow: inset 2px 2px 0 rgba(26, 26, 26, 0.35);
   overflow: hidden;
 }
 .fill {
   height: 100%;
-  border-right: 2px solid var(--ink);
+  border-right: var(--border-thin);
 }
 .blue { background: var(--blue); }
 .teal { background: var(--teal); }
