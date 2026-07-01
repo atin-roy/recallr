@@ -1,0 +1,33 @@
+:root {
+  /* palette */
+  --ink: #1a1a1a;
+  --paper: #f4efe3;
+  --cream: #fffdf7;
+  --teal: #22c1bf;
+  --lavender: #e7ddfb;
+  --blue: #4f6df5;
+  --yellow: #f5c518;
+  --coral: #e0574a;
+  --mint: #c9f0dc;
+
+  /* borders & hard offset shadows */
+  --border-w: 2.5px;
+  --border: var(--border-w) solid var(--ink);
+  --shadow-hard-sm: 4px 4px 0 var(--ink);
+  --shadow-hard: 6px 6px 0 var(--ink);
+  --shadow-hard-lg: 8px 8px 0 var(--ink);
+
+  /* radius & spacing */
+  --radius: 10px;
+  --radius-sm: 7px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* type */
+  --font-display: var(--font-bricolage), system-ui, sans-serif;
+  --font-body: var(--font-inter), system-ui, sans-serif;
+}
