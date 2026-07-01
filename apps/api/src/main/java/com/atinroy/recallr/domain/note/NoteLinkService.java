@@ -4,7 +4,6 @@ import com.atinroy.recallr.common.BadRequestException;
 import com.atinroy.recallr.domain.note.dto.NoteLinkRequest;
 import com.atinroy.recallr.domain.note.dto.NoteLinkResponse;
 import com.atinroy.recallr.security.AuthenticatedUserProvider;
-import com.atinroy.recallr.domain.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,60 +17,43 @@ public class NoteLinkService {
     private final AuthenticatedUserProvider authenticatedUserProvider;
     private final NoteRepository noteRepository;
     private final NoteLinkRepository noteLinkRepository;
+    private final NoteLinkMapper noteLinkMapper;
 
     @Transactional
     public NoteLinkResponse createNoteLink(NoteLinkRequest request) {
-        User user = authenticatedUserProvider.getCurrentUser();
-
-        Note source = findNoteForUser(parseUuid(request.sourceId()), user.getId());
-        Note target = findNoteForUser(parseUuid(request.targetId()), user.getId());
-
+        UUID userId = authenticatedUserProvider.getCurrentUser().getId();
         NoteLink link = new NoteLink();
-        link.setSource(source);
-        link.setTarget(target);
-
-        NoteLink saved = noteLinkRepository.save(link);
-        return toResponse(saved);
+        return applyNotesAndSave(link, request, userId);
     }
 
     @Transactional
     public NoteLinkResponse updateNoteLink(UUID id, NoteLinkRequest request) {
-        User user = authenticatedUserProvider.getCurrentUser();
-
-        NoteLink link = noteLinkRepository.findByIdAndSourceUserId(id, user.getId())
-                .orElseThrow(() -> new NoteLinkNotFoundException("Note link not found"));
-
-        Note source = findNoteForUser(parseUuid(request.sourceId()), user.getId());
-        Note target = findNoteForUser(parseUuid(request.targetId()), user.getId());
-
-        link.setSource(source);
-        link.setTarget(target);
-
-        NoteLink saved = noteLinkRepository.save(link);
-        return toResponse(saved);
+        UUID userId = authenticatedUserProvider.getCurrentUser().getId();
+        NoteLink link = resolveLink(id, userId);
+        return applyNotesAndSave(link, request, userId);
     }
 
     @Transactional
     public void deleteNoteLink(UUID id) {
-        User user = authenticatedUserProvider.getCurrentUser();
-
-        NoteLink link = noteLinkRepository.findByIdAndSourceUserId(id, user.getId())
-                .orElseThrow(() -> new NoteLinkNotFoundException("Note link not found"));
-
+        UUID userId = authenticatedUserProvider.getCurrentUser().getId();
+        NoteLink link = resolveLink(id, userId);
         noteLinkRepository.delete(link);
+    }
+
+    private NoteLinkResponse applyNotesAndSave(NoteLink link, NoteLinkRequest request, UUID userId) {
+        link.setSource(findNoteForUser(parseUuid(request.sourceId()), userId));
+        link.setTarget(findNoteForUser(parseUuid(request.targetId()), userId));
+        return noteLinkMapper.toResponse(noteLinkRepository.save(link));
+    }
+
+    private NoteLink resolveLink(UUID id, UUID userId) {
+        return noteLinkRepository.findByIdAndSourceUserId(id, userId)
+                .orElseThrow(() -> new NoteLinkNotFoundException("Note link not found"));
     }
 
     private Note findNoteForUser(UUID noteId, UUID userId) {
         return noteRepository.findByIdAndUserId(noteId, userId)
                 .orElseThrow(() -> new NoteNotFoundException("Note not found"));
-    }
-
-    private NoteLinkResponse toResponse(NoteLink link) {
-        return new NoteLinkResponse(
-                link.getId(),
-                link.getSource().getId(),
-                link.getTarget().getId()
-        );
     }
 
     private UUID parseUuid(String value) {
