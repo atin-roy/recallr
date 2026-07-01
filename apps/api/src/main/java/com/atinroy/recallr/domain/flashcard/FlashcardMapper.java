@@ -6,6 +6,8 @@ import com.atinroy.recallr.domain.flashcard.dto.*;
 import com.atinroy.recallr.domain.user.User;
 import org.springframework.stereotype.Component;
 
+import java.util.stream.Collectors;
+
 @Component
 public class FlashcardMapper {
 
@@ -42,6 +44,20 @@ public class FlashcardMapper {
             card.setCorrectAnswer(r.isCorrectAnswer());
             card.setExplanation(r.getExplanation());
             return card;
+        } else if (request instanceof MatchingFlashcardRequest r) {
+            MatchingFlashcard card = new MatchingFlashcard();
+            card.setUser(user);
+            card.setDeck(deck);
+            card.setQuestion(r.getQuestion());
+            card.setPairs(r.getPairs().stream()
+                    .map(dto -> {
+                        MatchingPair p = new MatchingPair();
+                        p.setPrompt(dto.getPrompt());
+                        p.setMatchValue(dto.getMatchValue());
+                        return p;
+                    })
+                    .collect(Collectors.toList()));
+            return card;
         }
         throw new IllegalArgumentException("Unknown flashcard type");
     }
@@ -71,6 +87,18 @@ public class FlashcardMapper {
             r.setCorrectAnswer(c.isCorrectAnswer());
             r.setExplanation(c.getExplanation());
             return r;
+        } else if (card instanceof MatchingFlashcard c) {
+            MatchingFlashcardResponse r = new MatchingFlashcardResponse();
+            mapBase(card, r);
+            r.setPairs(c.getPairs().stream()
+                    .map(p -> {
+                        MatchingPairDto dto = new MatchingPairDto();
+                        dto.setPrompt(p.getPrompt());
+                        dto.setMatchValue(p.getMatchValue());
+                        return dto;
+                    })
+                    .collect(Collectors.toList()));
+            return r;
         }
         throw new IllegalArgumentException("Unknown flashcard type");
     }
@@ -79,7 +107,8 @@ public class FlashcardMapper {
         if ((request instanceof BasicFlashcardUpdateRequest && !(card instanceof BasicFlashcard)) ||
             (request instanceof MCQFlashcardUpdateRequest && !(card instanceof MCQFlashcard)) ||
             (request instanceof ClozeFlashcardUpdateRequest && !(card instanceof ClozeFlashcard)) ||
-            (request instanceof TrueFalseFlashcardUpdateRequest && !(card instanceof TrueFalseFlashcard))) {
+            (request instanceof TrueFalseFlashcardUpdateRequest && !(card instanceof TrueFalseFlashcard)) ||
+            (request instanceof MatchingFlashcardUpdateRequest && !(card instanceof MatchingFlashcard))) {
             throw new BadRequestException("Update request type does not match flashcard type");
         }
         card.setQuestion(request.getQuestion());
@@ -95,6 +124,15 @@ public class FlashcardMapper {
         } else if (request instanceof TrueFalseFlashcardUpdateRequest r && card instanceof TrueFalseFlashcard c) {
             c.setCorrectAnswer(r.isCorrectAnswer());
             c.setExplanation(r.getExplanation());
+        } else if (request instanceof MatchingFlashcardUpdateRequest r && card instanceof MatchingFlashcard c) {
+            c.setPairs(r.getPairs().stream()
+                    .map(dto -> {
+                        MatchingPair p = new MatchingPair();
+                        p.setPrompt(dto.getPrompt());
+                        p.setMatchValue(dto.getMatchValue());
+                        return p;
+                    })
+                    .collect(Collectors.toList()));
         }
     }
 

@@ -143,4 +143,82 @@ class FlashcardMapperTest {
         assertThatThrownBy(() -> mapper.applyUpdate(req, card))
                 .isInstanceOf(com.atinroy.recallr.common.BadRequestException.class);
     }
+
+    // ── Matching ──────────────────────────────────────────────────────────────
+
+    @Test
+    void toEntity_matching_mapsAllFields() {
+        MatchingPairDto pair1 = new MatchingPairDto();
+        pair1.setPrompt("France");
+        pair1.setMatchValue("Paris");
+        MatchingPairDto pair2 = new MatchingPairDto();
+        pair2.setPrompt("Japan");
+        pair2.setMatchValue("Tokyo");
+
+        MatchingFlashcardRequest req = new MatchingFlashcardRequest();
+        req.setQuestion("Match each country to its capital.");
+        req.setPairs(List.of(pair1, pair2));
+
+        Flashcard result = mapper.toEntity(req, user, deck);
+
+        assertThat(result).isInstanceOf(MatchingFlashcard.class);
+        MatchingFlashcard card = (MatchingFlashcard) result;
+        assertThat(card.getQuestion()).isEqualTo("Match each country to its capital.");
+        assertThat(card.getPairs()).hasSize(2);
+        assertThat(card.getPairs().get(0).getPrompt()).isEqualTo("France");
+        assertThat(card.getPairs().get(0).getMatchValue()).isEqualTo("Paris");
+        assertThat(card.getPairs().get(1).getPrompt()).isEqualTo("Japan");
+        assertThat(card.getPairs().get(1).getMatchValue()).isEqualTo("Tokyo");
+    }
+
+    @Test
+    void toResponse_matching_mapsAllFields() {
+        MatchingPair pair = new MatchingPair();
+        pair.setPrompt("France");
+        pair.setMatchValue("Paris");
+
+        MatchingFlashcard card = new MatchingFlashcard();
+        card.setQuestion("Match capitals.");
+        card.setPairs(List.of(pair));
+        card.setDeck(deck);
+
+        FlashcardResponse result = mapper.toResponse(card);
+
+        assertThat(result).isInstanceOf(MatchingFlashcardResponse.class);
+        MatchingFlashcardResponse response = (MatchingFlashcardResponse) result;
+        assertThat(response.getPairs()).hasSize(1);
+        assertThat(response.getPairs().get(0).getPrompt()).isEqualTo("France");
+        assertThat(response.getPairs().get(0).getMatchValue()).isEqualTo("Paris");
+    }
+
+    @Test
+    void applyUpdate_matching_updatesFields() {
+        MatchingFlashcard card = new MatchingFlashcard();
+        card.setQuestion("Old question");
+
+        MatchingPairDto newPair = new MatchingPairDto();
+        newPair.setPrompt("Germany");
+        newPair.setMatchValue("Berlin");
+
+        MatchingFlashcardUpdateRequest req = new MatchingFlashcardUpdateRequest();
+        req.setQuestion("New question");
+        req.setPairs(List.of(newPair));
+
+        mapper.applyUpdate(req, card);
+
+        assertThat(card.getQuestion()).isEqualTo("New question");
+        assertThat(card.getPairs()).hasSize(1);
+        assertThat(card.getPairs().get(0).getPrompt()).isEqualTo("Germany");
+    }
+
+    @Test
+    void applyUpdate_matching_withTrueFalseCard_throwsBadRequestException() {
+        TrueFalseFlashcard card = new TrueFalseFlashcard();
+        MatchingFlashcardUpdateRequest req = new MatchingFlashcardUpdateRequest();
+        req.setQuestion("q");
+        req.setPairs(List.of());
+
+        assertThatThrownBy(() -> mapper.applyUpdate(req, card))
+                .isInstanceOf(com.atinroy.recallr.common.BadRequestException.class);
+    }
 }
