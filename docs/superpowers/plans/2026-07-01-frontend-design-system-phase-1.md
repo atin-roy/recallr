@@ -583,7 +583,7 @@ Expected: note the endpoint it calls and field names, so the restyle preserves b
   color: var(--ink);
   background: var(--cream);
   border: var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-control);
   padding: 11px 13px;
   box-shadow: inset 2px 2px 0 rgba(26, 26, 26, 0.12);
 }
@@ -647,7 +647,7 @@ export function TextField({ label, id, ...rest }: Props) {
   color: var(--ink);
   background: var(--cream);
   border: var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-control);
   padding: 11px 46px 11px 13px;
   box-shadow: inset 2px 2px 0 rgba(26, 26, 26, 0.12);
 }
@@ -844,8 +844,8 @@ export default function LoginPage() {
   margin: 0;
   background: var(--coral);
   color: var(--cream);
-  border: 2px solid var(--ink);
-  border-radius: 8px;
+  border: var(--border-thin);
+  border-radius: var(--radius-control);
   padding: 10px 12px;
   font-size: 0.9rem;
 }
@@ -950,7 +950,7 @@ git commit -m "feat(web): paper-style form fields + restyled login/register"
   color: var(--cream);
   font-size: 0.95rem;
   margin-left: 14px;
-  box-shadow: 2px 2px 0 var(--ink);
+  box-shadow: var(--shadow-hard-xs);
 }
 ```
 
@@ -1273,7 +1273,7 @@ export default function Home() {
   font-family: var(--font-body);
   font-weight: 700;
   border: var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-control);
   padding: 12px 22px;
   box-shadow: var(--shadow-hard-sm);
   transition: transform 0.08s ease, box-shadow 0.08s ease;
