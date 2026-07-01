@@ -10,7 +10,6 @@ import lombok.Setter;
 @Setter
 public class ShortAnswerFlashcard extends Flashcard {
 
-    @Lob
     @Column(name = "model_answer", columnDefinition = "TEXT")
     private String modelAnswer;
 }

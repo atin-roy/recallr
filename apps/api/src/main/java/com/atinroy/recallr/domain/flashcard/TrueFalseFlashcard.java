@@ -13,6 +13,6 @@ public class TrueFalseFlashcard extends Flashcard {
     @Column(name = "correct_answer")
     private boolean correctAnswer;
 
-    @Column(length = 1000)
+    @Column(name = "explanation", length = 1000)
     private String explanation;
 }
