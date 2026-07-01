@@ -13,6 +13,7 @@ import lombok.Setter;
     @JsonSubTypes.Type(value = TrueFalseFlashcardRequest.class, name = "TRUE_FALSE"),
     @JsonSubTypes.Type(value = MatchingFlashcardRequest.class, name = "MATCHING"),
     @JsonSubTypes.Type(value = OrderingFlashcardRequest.class, name = "ORDERING"),
+    @JsonSubTypes.Type(value = ShortAnswerFlashcardRequest.class, name = "SHORT_ANSWER"),
 })
 @Getter
 @Setter

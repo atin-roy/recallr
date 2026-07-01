@@ -16,6 +16,7 @@ import java.util.UUID;
     @JsonSubTypes.Type(value = TrueFalseFlashcardResponse.class, name = "TRUE_FALSE"),
     @JsonSubTypes.Type(value = MatchingFlashcardResponse.class, name = "MATCHING"),
     @JsonSubTypes.Type(value = OrderingFlashcardResponse.class, name = "ORDERING"),
+    @JsonSubTypes.Type(value = ShortAnswerFlashcardResponse.class, name = "SHORT_ANSWER"),
 })
 @Getter
 @Setter

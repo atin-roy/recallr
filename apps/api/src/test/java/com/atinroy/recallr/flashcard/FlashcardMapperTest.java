@@ -276,4 +276,60 @@ class FlashcardMapperTest {
         assertThatThrownBy(() -> mapper.applyUpdate(req, card))
                 .isInstanceOf(com.atinroy.recallr.common.BadRequestException.class);
     }
+
+    // ── Short Answer ──────────────────────────────────────────────────────────
+
+    @Test
+    void toEntity_shortAnswer_mapsAllFields() {
+        ShortAnswerFlashcardRequest req = new ShortAnswerFlashcardRequest();
+        req.setQuestion("What is photosynthesis?");
+        req.setModelAnswer("The process by which plants convert sunlight into glucose.");
+
+        Flashcard result = mapper.toEntity(req, user, deck);
+
+        assertThat(result).isInstanceOf(ShortAnswerFlashcard.class);
+        ShortAnswerFlashcard card = (ShortAnswerFlashcard) result;
+        assertThat(card.getQuestion()).isEqualTo("What is photosynthesis?");
+        assertThat(card.getModelAnswer()).isEqualTo("The process by which plants convert sunlight into glucose.");
+    }
+
+    @Test
+    void toResponse_shortAnswer_mapsAllFields() {
+        ShortAnswerFlashcard card = new ShortAnswerFlashcard();
+        card.setQuestion("What is photosynthesis?");
+        card.setModelAnswer("The process by which plants convert sunlight into glucose.");
+        card.setDeck(deck);
+
+        FlashcardResponse result = mapper.toResponse(card);
+
+        assertThat(result).isInstanceOf(ShortAnswerFlashcardResponse.class);
+        ShortAnswerFlashcardResponse response = (ShortAnswerFlashcardResponse) result;
+        assertThat(response.getModelAnswer()).isEqualTo("The process by which plants convert sunlight into glucose.");
+    }
+
+    @Test
+    void applyUpdate_shortAnswer_updatesFields() {
+        ShortAnswerFlashcard card = new ShortAnswerFlashcard();
+        card.setModelAnswer("Old answer.");
+
+        ShortAnswerFlashcardUpdateRequest req = new ShortAnswerFlashcardUpdateRequest();
+        req.setQuestion("Updated question.");
+        req.setModelAnswer("Updated model answer.");
+
+        mapper.applyUpdate(req, card);
+
+        assertThat(card.getQuestion()).isEqualTo("Updated question.");
+        assertThat(card.getModelAnswer()).isEqualTo("Updated model answer.");
+    }
+
+    @Test
+    void applyUpdate_shortAnswer_withOrderingCard_throwsBadRequestException() {
+        OrderingFlashcard card = new OrderingFlashcard();
+        ShortAnswerFlashcardUpdateRequest req = new ShortAnswerFlashcardUpdateRequest();
+        req.setQuestion("q");
+        req.setModelAnswer("a");
+
+        assertThatThrownBy(() -> mapper.applyUpdate(req, card))
+                .isInstanceOf(com.atinroy.recallr.common.BadRequestException.class);
+    }
 }

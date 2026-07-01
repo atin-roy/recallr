@@ -65,6 +65,13 @@ public class FlashcardMapper {
             card.setQuestion(r.getQuestion());
             card.setItems(r.getItems());
             return card;
+        } else if (request instanceof ShortAnswerFlashcardRequest r) {
+            ShortAnswerFlashcard card = new ShortAnswerFlashcard();
+            card.setUser(user);
+            card.setDeck(deck);
+            card.setQuestion(r.getQuestion());
+            card.setModelAnswer(r.getModelAnswer());
+            return card;
         }
         throw new IllegalArgumentException("Unknown flashcard type");
     }
@@ -111,6 +118,11 @@ public class FlashcardMapper {
             mapBase(card, r);
             r.setItems(c.getItems());
             return r;
+        } else if (card instanceof ShortAnswerFlashcard c) {
+            ShortAnswerFlashcardResponse r = new ShortAnswerFlashcardResponse();
+            mapBase(card, r);
+            r.setModelAnswer(c.getModelAnswer());
+            return r;
         }
         throw new IllegalArgumentException("Unknown flashcard type");
     }
@@ -121,7 +133,8 @@ public class FlashcardMapper {
             (request instanceof ClozeFlashcardUpdateRequest && !(card instanceof ClozeFlashcard)) ||
             (request instanceof TrueFalseFlashcardUpdateRequest && !(card instanceof TrueFalseFlashcard)) ||
             (request instanceof MatchingFlashcardUpdateRequest && !(card instanceof MatchingFlashcard)) ||
-            (request instanceof OrderingFlashcardUpdateRequest && !(card instanceof OrderingFlashcard))) {
+            (request instanceof OrderingFlashcardUpdateRequest && !(card instanceof OrderingFlashcard)) ||
+            (request instanceof ShortAnswerFlashcardUpdateRequest && !(card instanceof ShortAnswerFlashcard))) {
             throw new BadRequestException("Update request type does not match flashcard type");
         }
         card.setQuestion(request.getQuestion());
@@ -148,6 +161,8 @@ public class FlashcardMapper {
                     .collect(Collectors.toList()));
         } else if (request instanceof OrderingFlashcardUpdateRequest r && card instanceof OrderingFlashcard c) {
             c.setItems(r.getItems());
+        } else if (request instanceof ShortAnswerFlashcardUpdateRequest r && card instanceof ShortAnswerFlashcard c) {
+            c.setModelAnswer(r.getModelAnswer());
         }
     }
 
