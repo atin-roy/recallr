@@ -1,11 +1,17 @@
 .shell {
   min-height: 100vh;
   padding: var(--space-6);
+  display: flex;
+  gap: var(--space-6);
 }
-.container {
+.main {
+  flex: 1;
+  min-width: 0;
   max-width: 1040px;
-  margin: 0 auto;
 }
-.content {
-  margin-top: var(--space-8);
+
+@media (max-width: 720px) {
+  .shell {
+    flex-direction: column;
+  }
 }

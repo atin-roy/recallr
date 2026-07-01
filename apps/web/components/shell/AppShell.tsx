@@ -1,4 +1,4 @@
-import { TopNav } from "./TopNav";
+import { Sidebar } from "./Sidebar";
 import styles from "./AppShell.module.css";
 
 export function AppShell({
@@ -10,10 +10,8 @@ export function AppShell({
 }) {
   return (
     <div className={styles.shell}>
-      <div className={styles.container}>
-        <TopNav userInitials={userInitials} />
-        <div className={styles.content}>{children}</div>
-      </div>
+      <Sidebar userInitials={userInitials} />
+      <main className={styles.main}>{children}</main>
     </div>
   );
 }
