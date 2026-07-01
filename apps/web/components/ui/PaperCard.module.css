@@ -1,0 +1,17 @@
+.card {
+  background: var(--cream);
+  border: 3px solid var(--ink);
+  border-radius: 12px;
+  box-shadow: var(--shadow-hard);
+}
+.interactive {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.interactive:hover {
+  transform: translateY(-4px);
+  box-shadow: 10px 10px 0 var(--ink);
+}
+.cream { background: var(--cream); }
+.lavender { background: var(--lavender); }
+.teal { background: var(--teal); }
+.yellow { background: var(--yellow); }
