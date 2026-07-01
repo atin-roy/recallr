@@ -58,6 +58,13 @@ public class FlashcardMapper {
                     })
                     .collect(Collectors.toList()));
             return card;
+        } else if (request instanceof OrderingFlashcardRequest r) {
+            OrderingFlashcard card = new OrderingFlashcard();
+            card.setUser(user);
+            card.setDeck(deck);
+            card.setQuestion(r.getQuestion());
+            card.setItems(r.getItems());
+            return card;
         }
         throw new IllegalArgumentException("Unknown flashcard type");
     }
@@ -99,6 +106,11 @@ public class FlashcardMapper {
                     })
                     .collect(Collectors.toList()));
             return r;
+        } else if (card instanceof OrderingFlashcard c) {
+            OrderingFlashcardResponse r = new OrderingFlashcardResponse();
+            mapBase(card, r);
+            r.setItems(c.getItems());
+            return r;
         }
         throw new IllegalArgumentException("Unknown flashcard type");
     }
@@ -108,7 +120,8 @@ public class FlashcardMapper {
             (request instanceof MCQFlashcardUpdateRequest && !(card instanceof MCQFlashcard)) ||
             (request instanceof ClozeFlashcardUpdateRequest && !(card instanceof ClozeFlashcard)) ||
             (request instanceof TrueFalseFlashcardUpdateRequest && !(card instanceof TrueFalseFlashcard)) ||
-            (request instanceof MatchingFlashcardUpdateRequest && !(card instanceof MatchingFlashcard))) {
+            (request instanceof MatchingFlashcardUpdateRequest && !(card instanceof MatchingFlashcard)) ||
+            (request instanceof OrderingFlashcardUpdateRequest && !(card instanceof OrderingFlashcard))) {
             throw new BadRequestException("Update request type does not match flashcard type");
         }
         card.setQuestion(request.getQuestion());
@@ -133,6 +146,8 @@ public class FlashcardMapper {
                         return p;
                     })
                     .collect(Collectors.toList()));
+        } else if (request instanceof OrderingFlashcardUpdateRequest r && card instanceof OrderingFlashcard c) {
+            c.setItems(r.getItems());
         }
     }
 

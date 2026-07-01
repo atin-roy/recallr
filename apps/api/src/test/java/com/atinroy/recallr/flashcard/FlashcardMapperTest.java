@@ -221,4 +221,59 @@ class FlashcardMapperTest {
         assertThatThrownBy(() -> mapper.applyUpdate(req, card))
                 .isInstanceOf(com.atinroy.recallr.common.BadRequestException.class);
     }
+
+    // ── Ordering ──────────────────────────────────────────────────────────────
+
+    @Test
+    void toEntity_ordering_mapsAllFields() {
+        OrderingFlashcardRequest req = new OrderingFlashcardRequest();
+        req.setQuestion("Arrange these events in chronological order.");
+        req.setItems(List.of("World War I", "World War II", "Cold War"));
+
+        Flashcard result = mapper.toEntity(req, user, deck);
+
+        assertThat(result).isInstanceOf(OrderingFlashcard.class);
+        OrderingFlashcard card = (OrderingFlashcard) result;
+        assertThat(card.getQuestion()).isEqualTo("Arrange these events in chronological order.");
+        assertThat(card.getItems()).containsExactly("World War I", "World War II", "Cold War");
+    }
+
+    @Test
+    void toResponse_ordering_mapsAllFields() {
+        OrderingFlashcard card = new OrderingFlashcard();
+        card.setQuestion("Arrange in order.");
+        card.setItems(List.of("A", "B", "C"));
+        card.setDeck(deck);
+
+        FlashcardResponse result = mapper.toResponse(card);
+
+        assertThat(result).isInstanceOf(OrderingFlashcardResponse.class);
+        OrderingFlashcardResponse response = (OrderingFlashcardResponse) result;
+        assertThat(response.getItems()).containsExactly("A", "B", "C");
+    }
+
+    @Test
+    void applyUpdate_ordering_updatesFields() {
+        OrderingFlashcard card = new OrderingFlashcard();
+        card.setItems(List.of("X", "Y"));
+
+        OrderingFlashcardUpdateRequest req = new OrderingFlashcardUpdateRequest();
+        req.setQuestion("New ordering question.");
+        req.setItems(List.of("A", "B", "C"));
+
+        mapper.applyUpdate(req, card);
+
+        assertThat(card.getItems()).containsExactly("A", "B", "C");
+    }
+
+    @Test
+    void applyUpdate_ordering_withMatchingCard_throwsBadRequestException() {
+        MatchingFlashcard card = new MatchingFlashcard();
+        OrderingFlashcardUpdateRequest req = new OrderingFlashcardUpdateRequest();
+        req.setQuestion("q");
+        req.setItems(List.of());
+
+        assertThatThrownBy(() -> mapper.applyUpdate(req, card))
+                .isInstanceOf(com.atinroy.recallr.common.BadRequestException.class);
+    }
 }
