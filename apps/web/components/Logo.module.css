@@ -10,3 +10,9 @@
   letter-spacing: -0.5px;
   color: var(--ink);
 }
+.lg {
+  gap: var(--space-3);
+}
+.lg .wordmark {
+  font-size: 1.85rem;
+}
