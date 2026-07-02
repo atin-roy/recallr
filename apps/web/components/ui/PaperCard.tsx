@@ -1,7 +1,16 @@
 import styles from "./PaperCard.module.css";
 
 type Props = React.HTMLAttributes<HTMLDivElement> & {
-  color?: "cream" | "lavender" | "teal" | "yellow";
+  color?:
+    | "cream"
+    | "lavender"
+    | "teal"
+    | "yellow"
+    | "mint"
+    | "coral"
+    | "sky"
+    | "rose"
+    | "peach";
   interactive?: boolean;
 };
 
