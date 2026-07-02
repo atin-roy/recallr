@@ -7,6 +7,7 @@ public record NotebookResponse(
         UUID id,
         String name,
         String description,
+        String color,
         Instant createdAt,
         Instant updatedAt
 ) {}

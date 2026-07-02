@@ -13,6 +13,7 @@ public class NotebookMapper {
         notebook.setUser(user);
         notebook.setName(request.name());
         notebook.setDescription(request.description());
+        notebook.setColor(request.color());
         return notebook;
     }
 
@@ -21,6 +22,7 @@ public class NotebookMapper {
                 notebook.getId(),
                 notebook.getName(),
                 notebook.getDescription(),
+                notebook.getColor(),
                 notebook.getCreatedAt(),
                 notebook.getUpdatedAt()
         );

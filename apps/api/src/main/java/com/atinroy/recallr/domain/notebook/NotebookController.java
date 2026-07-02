@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -21,6 +22,11 @@ public class NotebookController {
     @PostMapping
     public NotebookResponse createNotebook(@RequestBody @Valid NotebookRequest request) {
         return notebookService.createNotebook(request);
+    }
+
+    @GetMapping
+    public List<NotebookResponse> getNotebooks() {
+        return notebookService.getNotebooks();
     }
 
     @GetMapping("/{notebookId}")

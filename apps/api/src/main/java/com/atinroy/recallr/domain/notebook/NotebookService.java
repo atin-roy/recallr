@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -22,8 +23,16 @@ public class NotebookService {
     @Transactional
     public NotebookResponse createNotebook(NotebookRequest request) {
         User user = authenticatedUserProvider.getCurrentUser();
-        Notebook saved = notebookRepository.save(notebookMapper.toEntity(request, user));
+        // Flush so @CreationTimestamp/@UpdateTimestamp are populated before mapping.
+        Notebook saved = notebookRepository.saveAndFlush(notebookMapper.toEntity(request, user));
         return notebookMapper.toResponse(saved);
+    }
+
+    public List<NotebookResponse> getNotebooks() {
+        UUID userId = authenticatedUserProvider.getCurrentUser().getId();
+        return notebookRepository.findAllByUserIdOrderByUpdatedAtDesc(userId).stream()
+                .map(notebookMapper::toResponse)
+                .toList();
     }
 
     public NotebookResponse getNotebookById(UUID notebookId) {
@@ -38,6 +47,7 @@ public class NotebookService {
         Notebook notebook = resolveNotebook(notebookId, userId);
         notebook.setName(request.name());
         notebook.setDescription(request.description());
+        notebook.setColor(request.color());
         return notebookMapper.toResponse(notebook);
     }
 

@@ -21,4 +21,7 @@ public class Notebook extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")
     private String description;
+
+    @Column(length = 20)
+    private String color;
 }
