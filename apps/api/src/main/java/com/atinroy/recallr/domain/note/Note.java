@@ -27,7 +27,6 @@ public class Note extends BaseEntity {
     @Column(length = 100)
     private String title;
 
-    @Lob
     @Column(columnDefinition = "TEXT")
     private String content;
 

@@ -10,7 +10,6 @@ import lombok.Setter;
 @Setter
 public class BasicFlashcard extends Flashcard {
 
-    @Lob
     @Column(columnDefinition = "TEXT")
     private String answer;
 

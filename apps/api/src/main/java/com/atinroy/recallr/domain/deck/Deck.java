@@ -24,7 +24,6 @@ public class Deck extends BaseEntity {
     @Column(length = 200, nullable = false)
     private String name;
 
-    @Lob
     @Column(columnDefinition = "TEXT")
     private String description;
 }
