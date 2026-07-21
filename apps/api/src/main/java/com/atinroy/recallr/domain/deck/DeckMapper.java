@@ -18,12 +18,13 @@ public class DeckMapper {
         return deck;
     }
 
-    public DeckResponse toResponse(Deck deck) {
+    public DeckResponse toResponse(Deck deck, long cardCount) {
         return new DeckResponse(
                 deck.getId(),
                 deck.getNotebook() != null ? deck.getNotebook().getId() : null,
                 deck.getName(),
                 deck.getDescription(),
+                cardCount,
                 deck.getCreatedAt(),
                 deck.getUpdatedAt()
         );

@@ -8,6 +8,7 @@ public record DeckResponse(
         UUID notebookId,
         String name,
         String description,
+        long cardCount,
         Instant createdAt,
         Instant updatedAt
 ) {}
