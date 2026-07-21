@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { PaperCard } from "@/components/ui/PaperCard";
 import { TextField } from "@/components/ui/TextField";
@@ -210,20 +211,25 @@ export default function DashboardPage() {
         ) : (
           <div className={styles.grid}>
             {notebooks.map((nb, i) => (
-              <PaperCard
+              <Link
                 key={nb.id}
-                interactive
-                color={nb.color ?? COLORS[i % COLORS.length]}
-                className={styles.card}
+                href={`/notebooks/${nb.id}`}
+                className={styles.cardLink}
               >
-                <p className={styles.cardMeta}>
-                  Updated {dateFormat.format(new Date(nb.updatedAt))}
-                </p>
-                <div className={styles.name}>{nb.name}</div>
-                {nb.description && (
-                  <p className={styles.desc}>{nb.description}</p>
-                )}
-              </PaperCard>
+                <PaperCard
+                  interactive
+                  color={nb.color ?? COLORS[i % COLORS.length]}
+                  className={styles.card}
+                >
+                  <p className={styles.cardMeta}>
+                    Updated {dateFormat.format(new Date(nb.updatedAt))}
+                  </p>
+                  <div className={styles.name}>{nb.name}</div>
+                  {nb.description && (
+                    <p className={styles.desc}>{nb.description}</p>
+                  )}
+                </PaperCard>
+              </Link>
             ))}
           </div>
         ))}
