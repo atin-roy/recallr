@@ -116,3 +116,45 @@ export function createNotebook(input: {
     body: JSON.stringify(input),
   });
 }
+
+export type Deck = {
+  id: string;
+  notebookId: string | null;
+  name: string;
+  description?: string | null;
+  cardCount: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export function getNotebook(id: string) {
+  return apiFetch<Notebook>(`/notebooks/${id}`);
+}
+
+export function getDecksByNotebook(notebookId: string) {
+  return apiFetch<Deck[]>(`/notebooks/${notebookId}/decks`);
+}
+
+export function createDeck(
+  notebookId: string,
+  input: { name: string; description?: string },
+) {
+  return apiFetch<Deck>(`/notebooks/${notebookId}/decks`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function updateDeck(
+  deckId: string,
+  input: { name: string; description?: string },
+) {
+  return apiFetch<Deck>(`/decks/${deckId}`, {
+    method: "PUT",
+    body: JSON.stringify(input),
+  });
+}
+
+export function deleteDeck(deckId: string) {
+  return apiFetch<void>(`/decks/${deckId}`, { method: "DELETE" });
+}
