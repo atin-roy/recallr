@@ -178,6 +178,7 @@ export default function NotebookPage({
       )}
       {form.kind === "edit" && (
         <DeckForm
+          key={form.deck.id}
           mode="edit"
           initial={{
             name: form.deck.name,
