@@ -1,0 +1,112 @@
+.stackWrap {
+  padding: var(--space-3) var(--space-2) var(--space-4);
+}
+.stack {
+  position: relative;
+  min-height: 180px;
+}
+.layer {
+  position: absolute;
+  inset: 0;
+  border: var(--border-card);
+  border-radius: var(--radius-card);
+}
+.layer1 {
+  transform: rotate(3deg) translate(5px, 4px);
+}
+.layer2 {
+  transform: rotate(-5deg) translate(-7px, 7px);
+}
+.top {
+  position: relative;
+  background: var(--cream);
+  border: var(--border-card);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-hard);
+  padding: var(--space-6);
+}
+.meta {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--color-text-soft);
+  margin-bottom: var(--space-3);
+}
+.name {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.desc {
+  margin-top: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.countLine {
+  margin-top: var(--space-4);
+}
+.countPill {
+  display: inline-block;
+  border: var(--border-thin);
+  border-radius: var(--radius-pill);
+  padding: 2px var(--space-3);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  background: var(--paper);
+}
+.error {
+  margin-top: var(--space-3);
+  color: var(--coral);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+.actions {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+.action,
+.dangerAction {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  color: var(--color-text-muted);
+}
+.action:hover {
+  color: var(--ink);
+}
+.dangerAction {
+  color: var(--coral);
+}
+.dangerAction:disabled,
+.action:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* palette layer fills */
+.lavender { background: var(--lavender); }
+.teal { background: var(--teal); }
+.mint { background: var(--mint); }
+.sky { background: var(--sky); }
+.rose { background: var(--rose); }
+.peach { background: var(--peach); }
+.yellow { background: var(--yellow); }
+.coral { background: var(--coral); }
