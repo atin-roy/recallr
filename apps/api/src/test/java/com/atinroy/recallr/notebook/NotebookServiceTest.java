@@ -43,11 +43,11 @@ class NotebookServiceTest {
 
     @Test
     void createNotebook_withValidRequest_returnsResponse() {
-        NotebookRequest request = new NotebookRequest("My Notebook", "A description");
-        NotebookResponse expected = new NotebookResponse(notebook.getId(), "My Notebook", "A description", null, null);
+        NotebookRequest request = new NotebookRequest("My Notebook", "A description", null);
+        NotebookResponse expected = new NotebookResponse(notebook.getId(), "My Notebook", "A description", null, null, null);
         when(authenticatedUserProvider.getCurrentUser()).thenReturn(user);
         when(notebookMapper.toEntity(request, user)).thenReturn(notebook);
-        when(notebookRepository.save(notebook)).thenReturn(notebook);
+        when(notebookRepository.saveAndFlush(notebook)).thenReturn(notebook);
         when(notebookMapper.toResponse(notebook)).thenReturn(expected);
 
         NotebookResponse result = notebookService.createNotebook(request);
@@ -57,7 +57,7 @@ class NotebookServiceTest {
 
     @Test
     void getNotebookById_whenFound_returnsResponse() {
-        NotebookResponse expected = new NotebookResponse(notebook.getId(), "My Notebook", null, null, null);
+        NotebookResponse expected = new NotebookResponse(notebook.getId(), "My Notebook", null, null, null, null);
         when(authenticatedUserProvider.getCurrentUser()).thenReturn(user);
         when(notebookRepository.findByIdAndUserId(notebook.getId(), user.getId())).thenReturn(Optional.of(notebook));
         when(notebookMapper.toResponse(notebook)).thenReturn(expected);
@@ -79,9 +79,9 @@ class NotebookServiceTest {
     void updateNotebook_whenFound_updatesFieldsAndReturnsResponse() {
         when(authenticatedUserProvider.getCurrentUser()).thenReturn(user);
         when(notebookRepository.findByIdAndUserId(notebook.getId(), user.getId())).thenReturn(Optional.of(notebook));
-        when(notebookMapper.toResponse(notebook)).thenReturn(new NotebookResponse(notebook.getId(), "New", "Desc", null, null));
+        when(notebookMapper.toResponse(notebook)).thenReturn(new NotebookResponse(notebook.getId(), "New", "Desc", null, null, null));
 
-        notebookService.updateNotebook(notebook.getId(), new NotebookUpdateRequest("New", "Desc"));
+        notebookService.updateNotebook(notebook.getId(), new NotebookUpdateRequest("New", "Desc", null));
 
         assertThat(notebook.getName()).isEqualTo("New");
         assertThat(notebook.getDescription()).isEqualTo("Desc");
@@ -93,7 +93,7 @@ class NotebookServiceTest {
         when(authenticatedUserProvider.getCurrentUser()).thenReturn(user);
         when(notebookRepository.findByIdAndUserId(id, user.getId())).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> notebookService.updateNotebook(id, new NotebookUpdateRequest("X", null)))
+        assertThatThrownBy(() -> notebookService.updateNotebook(id, new NotebookUpdateRequest("X", null, null)))
                 .isInstanceOf(NotebookNotFoundException.class);
     }
 
