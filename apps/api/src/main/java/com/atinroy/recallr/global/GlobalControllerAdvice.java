@@ -4,6 +4,7 @@ import com.atinroy.recallr.auth.InvalidTokenException;
 import com.atinroy.recallr.common.BadRequestException;
 import com.atinroy.recallr.domain.deck.DeckNotFoundException;
 import com.atinroy.recallr.domain.flashcard.FlashcardNotFoundException;
+import com.atinroy.recallr.domain.notebook.NotebookNameAlreadyExistsException;
 import com.atinroy.recallr.domain.notebook.NotebookNotFoundException;
 import com.atinroy.recallr.domain.note.NoteLinkNotFoundException;
 import com.atinroy.recallr.domain.note.NoteNotFoundException;
@@ -30,8 +31,8 @@ public class GlobalControllerAdvice {
         );
     }
 
-    @ExceptionHandler(EmailAlreadyExistsException.class)
-    public ResponseEntity<Map<String, Object>> handleEmailAlreadyExists(EmailAlreadyExistsException e) {
+    @ExceptionHandler({EmailAlreadyExistsException.class, NotebookNameAlreadyExistsException.class})
+    public ResponseEntity<Map<String, Object>> handleConflict(RuntimeException e) {
         return new ResponseEntity<>(errorBody(HttpStatus.CONFLICT, e.getMessage()), HttpStatus.CONFLICT);
     }
 

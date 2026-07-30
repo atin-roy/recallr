@@ -23,6 +23,10 @@ public class NotebookService {
     @Transactional
     public NotebookResponse createNotebook(NotebookRequest request) {
         User user = authenticatedUserProvider.getCurrentUser();
+        String name = request.name().strip();
+        if (notebookRepository.existsByUserIdAndNameIgnoreCase(user.getId(), name)) {
+            throw new NotebookNameAlreadyExistsException(name);
+        }
         // Flush so @CreationTimestamp/@UpdateTimestamp are populated before mapping.
         Notebook saved = notebookRepository.saveAndFlush(notebookMapper.toEntity(request, user));
         return notebookMapper.toResponse(saved);
@@ -45,7 +49,11 @@ public class NotebookService {
     public NotebookResponse updateNotebook(UUID notebookId, NotebookUpdateRequest request) {
         UUID userId = authenticatedUserProvider.getCurrentUser().getId();
         Notebook notebook = resolveNotebook(notebookId, userId);
-        notebook.setName(request.name());
+        String name = request.name().strip();
+        if (notebookRepository.existsByUserIdAndNameIgnoreCaseAndIdNot(userId, name, notebookId)) {
+            throw new NotebookNameAlreadyExistsException(name);
+        }
+        notebook.setName(name);
         notebook.setDescription(request.description());
         notebook.setColor(request.color());
         return notebookMapper.toResponse(notebook);

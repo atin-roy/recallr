@@ -56,6 +56,27 @@ class NotebookServiceTest {
     }
 
     @Test
+    void createNotebook_whenNameTakenByAnotherNotebook_throwsNotebookNameAlreadyExistsException() {
+        NotebookRequest request = new NotebookRequest("leetcode", null, null);
+        when(authenticatedUserProvider.getCurrentUser()).thenReturn(user);
+        when(notebookRepository.existsByUserIdAndNameIgnoreCase(user.getId(), "leetcode")).thenReturn(true);
+
+        assertThatThrownBy(() -> notebookService.createNotebook(request))
+                .isInstanceOf(NotebookNameAlreadyExistsException.class);
+        verify(notebookRepository, never()).saveAndFlush(any());
+    }
+
+    @Test
+    void createNotebook_stripsSurroundingWhitespaceBeforeCheckingUniqueness() {
+        NotebookRequest request = new NotebookRequest("  Leetcode  ", null, null);
+        when(authenticatedUserProvider.getCurrentUser()).thenReturn(user);
+        when(notebookRepository.existsByUserIdAndNameIgnoreCase(user.getId(), "Leetcode")).thenReturn(true);
+
+        assertThatThrownBy(() -> notebookService.createNotebook(request))
+                .isInstanceOf(NotebookNameAlreadyExistsException.class);
+    }
+
+    @Test
     void getNotebookById_whenFound_returnsResponse() {
         NotebookResponse expected = new NotebookResponse(notebook.getId(), "My Notebook", null, null, null, null);
         when(authenticatedUserProvider.getCurrentUser()).thenReturn(user);
@@ -95,6 +116,33 @@ class NotebookServiceTest {
 
         assertThatThrownBy(() -> notebookService.updateNotebook(id, new NotebookUpdateRequest("X", null, null)))
                 .isInstanceOf(NotebookNotFoundException.class);
+    }
+
+    @Test
+    void updateNotebook_whenNameTakenByAnotherNotebook_throwsNotebookNameAlreadyExistsException() {
+        notebook.setName("Old");
+        when(authenticatedUserProvider.getCurrentUser()).thenReturn(user);
+        when(notebookRepository.findByIdAndUserId(notebook.getId(), user.getId())).thenReturn(Optional.of(notebook));
+        when(notebookRepository.existsByUserIdAndNameIgnoreCaseAndIdNot(user.getId(), "Leetcode", notebook.getId()))
+                .thenReturn(true);
+
+        assertThatThrownBy(() -> notebookService.updateNotebook(notebook.getId(), new NotebookUpdateRequest("Leetcode", null, null)))
+                .isInstanceOf(NotebookNameAlreadyExistsException.class);
+        assertThat(notebook.getName()).isEqualTo("Old");
+    }
+
+    @Test
+    void updateNotebook_whenOnlyItsOwnNameMatches_appliesTheUpdate() {
+        notebook.setName("leetcode");
+        when(authenticatedUserProvider.getCurrentUser()).thenReturn(user);
+        when(notebookRepository.findByIdAndUserId(notebook.getId(), user.getId())).thenReturn(Optional.of(notebook));
+        when(notebookRepository.existsByUserIdAndNameIgnoreCaseAndIdNot(user.getId(), "Leetcode", notebook.getId()))
+                .thenReturn(false);
+        when(notebookMapper.toResponse(notebook)).thenReturn(new NotebookResponse(notebook.getId(), "Leetcode", null, null, null, null));
+
+        notebookService.updateNotebook(notebook.getId(), new NotebookUpdateRequest("  Leetcode  ", null, null));
+
+        assertThat(notebook.getName()).isEqualTo("Leetcode");
     }
 
     @Test

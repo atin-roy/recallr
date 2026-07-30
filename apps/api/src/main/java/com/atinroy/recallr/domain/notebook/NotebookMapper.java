@@ -11,7 +11,7 @@ public class NotebookMapper {
     public Notebook toEntity(NotebookRequest request, User user) {
         Notebook notebook = new Notebook();
         notebook.setUser(user);
-        notebook.setName(request.name());
+        notebook.setName(request.name().strip());
         notebook.setDescription(request.description());
         notebook.setColor(request.color());
         return notebook;
