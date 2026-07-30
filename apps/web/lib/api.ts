@@ -117,6 +117,20 @@ export function createNotebook(input: {
   });
 }
 
+export function updateNotebook(
+  id: string,
+  input: { name: string; description?: string; color?: NotebookColor },
+) {
+  return apiFetch<Notebook>(`/notebooks/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(input),
+  });
+}
+
+export function deleteNotebook(id: string) {
+  return apiFetch<void>(`/notebooks/${id}`, { method: "DELETE" });
+}
+
 export type Deck = {
   id: string;
   notebookId: string | null;

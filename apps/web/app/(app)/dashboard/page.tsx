@@ -9,6 +9,8 @@ import { LogoMark } from "@/components/LogoMark";
 import {
   getNotebooks,
   createNotebook,
+  updateNotebook,
+  deleteNotebook,
   type Notebook,
   type NotebookColor,
 } from "@/lib/api";
@@ -42,6 +44,13 @@ export default function DashboardPage() {
   const [color, setColor] = useState<NotebookColor>("lavender");
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [editing, setEditing] = useState<Notebook | null>(null);
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [cardError, setCardError] = useState<{
+    id: string;
+    message: string;
+  } | null>(null);
 
   const load = useCallback(() => {
     let cancelled = false;
@@ -69,35 +78,83 @@ export default function DashboardPage() {
 
   function openForm() {
     setFormError(null);
+    setEditing(null);
+    setName("");
+    setDescription("");
     setColor(COLORS[notebooks.length % COLORS.length]);
+    setFormOpen(true);
+  }
+
+  function openEdit(notebook: Notebook, fallbackColor: NotebookColor) {
+    setFormError(null);
+    setCardError(null);
+    setConfirmingId(null);
+    setEditing(notebook);
+    setName(notebook.name);
+    setDescription(notebook.description ?? "");
+    setColor(notebook.color ?? fallbackColor);
     setFormOpen(true);
   }
 
   function closeForm() {
     setFormOpen(false);
+    setEditing(null);
     setName("");
     setDescription("");
     setFormError(null);
   }
 
-  async function handleCreate(event: React.FormEvent) {
+  async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setSaving(true);
     setFormError(null);
+    const values = {
+      name: name.trim(),
+      description: description.trim() || undefined,
+      color,
+    };
     try {
-      const created = await createNotebook({
-        name: name.trim(),
-        description: description.trim() || undefined,
-        color,
-      });
-      setNotebooks((current) => [created, ...current]);
+      if (editing) {
+        const updated = await updateNotebook(editing.id, values);
+        setNotebooks((current) =>
+          current.map((nb) => (nb.id === updated.id ? updated : nb)),
+        );
+      } else {
+        const created = await createNotebook(values);
+        setNotebooks((current) => [created, ...current]);
+      }
       closeForm();
     } catch (error) {
       setFormError(
-        error instanceof Error ? error.message : "Couldn't create the notebook.",
+        error instanceof Error
+          ? error.message
+          : editing
+            ? "Couldn't save the notebook."
+            : "Couldn't create the notebook.",
       );
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleDelete(notebook: Notebook) {
+    setDeletingId(notebook.id);
+    setCardError(null);
+    try {
+      await deleteNotebook(notebook.id);
+      setNotebooks((current) => current.filter((nb) => nb.id !== notebook.id));
+      setConfirmingId(null);
+      if (editing?.id === notebook.id) closeForm();
+    } catch (error) {
+      setCardError({
+        id: notebook.id,
+        message:
+          error instanceof Error
+            ? error.message
+            : "Couldn't delete the notebook.",
+      });
+    } finally {
+      setDeletingId(null);
     }
   }
 
@@ -121,8 +178,10 @@ export default function DashboardPage() {
 
       {formOpen && (
         <PaperCard className={styles.formCard}>
-          <form onSubmit={handleCreate}>
-            <p className={styles.formLabel}>New notebook</p>
+          <form onSubmit={handleSubmit}>
+            <p className={styles.formLabel}>
+              {editing ? "Edit notebook" : "New notebook"}
+            </p>
             <div className={styles.formFields}>
               <TextField
                 id="notebook-name"
@@ -169,7 +228,13 @@ export default function DashboardPage() {
             )}
             <div className={styles.formActions}>
               <Button type="submit" disabled={saving || !name.trim()}>
-                {saving ? "Filing…" : "Create notebook"}
+                {saving
+                  ? editing
+                    ? "Saving…"
+                    : "Filing…"
+                  : editing
+                    ? "Save changes"
+                    : "Create notebook"}
               </Button>
               <Button type="button" variant="secondary" onClick={closeForm}>
                 Cancel
@@ -210,27 +275,87 @@ export default function DashboardPage() {
           )
         ) : (
           <div className={styles.grid}>
-            {notebooks.map((nb, i) => (
-              <Link
-                key={nb.id}
-                href={`/notebooks/${nb.id}`}
-                className={styles.cardLink}
-              >
+            {notebooks.map((nb, i) => {
+              const fallbackColor = COLORS[i % COLORS.length];
+              const confirming = confirmingId === nb.id;
+              const deleting = deletingId === nb.id;
+              return (
                 <PaperCard
+                  key={nb.id}
                   interactive
-                  color={nb.color ?? COLORS[i % COLORS.length]}
+                  color={nb.color ?? fallbackColor}
                   className={styles.card}
                 >
-                  <p className={styles.cardMeta}>
-                    Updated {dateFormat.format(new Date(nb.updatedAt))}
-                  </p>
-                  <div className={styles.name}>{nb.name}</div>
-                  {nb.description && (
-                    <p className={styles.desc}>{nb.description}</p>
+                  <Link
+                    href={`/notebooks/${nb.id}`}
+                    className={styles.cardLink}
+                  >
+                    <p className={styles.cardMeta}>
+                      Updated {dateFormat.format(new Date(nb.updatedAt))}
+                    </p>
+                    <div className={styles.name}>{nb.name}</div>
+                    {nb.description && (
+                      <p className={styles.desc}>{nb.description}</p>
+                    )}
+                  </Link>
+
+                  {cardError?.id === nb.id && (
+                    <p className={styles.cardError} role="alert">
+                      {cardError.message}
+                    </p>
                   )}
+
+                  {confirming && (
+                    <p className={styles.cardHint}>
+                      Deletes its decks and notes too.
+                    </p>
+                  )}
+
+                  <div className={styles.actions}>
+                    {confirming ? (
+                      <>
+                        <button
+                          type="button"
+                          className={styles.dangerAction}
+                          onClick={() => handleDelete(nb)}
+                          disabled={deleting}
+                        >
+                          {deleting ? "Deleting…" : "Really delete?"}
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.action}
+                          onClick={() => setConfirmingId(null)}
+                          disabled={deleting}
+                        >
+                          Cancel
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          className={styles.action}
+                          onClick={() => openEdit(nb, fallbackColor)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.action}
+                          onClick={() => {
+                            setCardError(null);
+                            setConfirmingId(nb.id);
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </PaperCard>
-              </Link>
-            ))}
+              );
+            })}
           </div>
         ))}
     </div>

@@ -30,8 +30,11 @@
   gap: var(--space-6);
 }
 .card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
   padding: var(--space-6);
-  height: 172px;
+  min-height: 196px;
   overflow: hidden;
 }
 .cardMeta {
@@ -227,4 +230,59 @@
   text-decoration: none;
   color: inherit;
   display: block;
+  flex: 1;
+  min-width: 0;
+}
+/* Stretch the link over the whole card so the card is clickable, while the
+   action buttons stay above it and keep their own hit area. */
+.cardLink::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+.cardError {
+  position: relative;
+  margin-top: var(--space-3);
+  color: var(--coral);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+.cardHint {
+  position: relative;
+  margin-top: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+}
+.actions {
+  position: relative;
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+.action,
+.dangerAction {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  color: var(--color-text-muted);
+}
+.action:hover {
+  color: var(--ink);
+}
+.dangerAction {
+  color: var(--coral);
+}
+.action:disabled,
+.dangerAction:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
