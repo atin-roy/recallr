@@ -172,3 +172,65 @@ export function updateDeck(
 export function deleteDeck(deckId: string) {
   return apiFetch<void>(`/decks/${deckId}`, { method: "DELETE" });
 }
+
+export function getDeck(deckId: string) {
+  return apiFetch<Deck>(`/decks/${deckId}`);
+}
+
+export type MatchingPair = { prompt: string; matchValue: string };
+
+// Mirrors the backend's Jackson polymorphism: every request/response carries a
+// "type" discriminator, and the payload fields depend on it.
+export type FlashcardPayload =
+  | { type: "BASIC"; answer: string; reverse: boolean }
+  | {
+      type: "MCQ";
+      options: string[];
+      correctOptionIndex: number;
+      explanation?: string | null;
+    }
+  | { type: "CLOZE"; answers: string[] }
+  | { type: "TRUE_FALSE"; correctAnswer: boolean; explanation?: string | null }
+  | { type: "MATCHING"; pairs: MatchingPair[] }
+  | { type: "ORDERING"; items: string[] }
+  | { type: "SHORT_ANSWER"; modelAnswer: string };
+
+export type FlashcardType = FlashcardPayload["type"];
+
+export type Flashcard = FlashcardPayload & {
+  id: string;
+  deckId: string;
+  question: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type FlashcardInput = FlashcardPayload & { question: string };
+
+export function getFlashcards(deckId: string) {
+  return apiFetch<Flashcard[]>(`/decks/${deckId}/flashcards`);
+}
+
+export function createFlashcard(deckId: string, input: FlashcardInput) {
+  return apiFetch<Flashcard>(`/decks/${deckId}/flashcards`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function updateFlashcard(
+  deckId: string,
+  flashcardId: string,
+  input: FlashcardInput,
+) {
+  return apiFetch<Flashcard>(`/decks/${deckId}/flashcards/${flashcardId}`, {
+    method: "PUT",
+    body: JSON.stringify(input),
+  });
+}
+
+export function deleteFlashcard(deckId: string, flashcardId: string) {
+  return apiFetch<void>(`/decks/${deckId}/flashcards/${flashcardId}`, {
+    method: "DELETE",
+  });
+}
