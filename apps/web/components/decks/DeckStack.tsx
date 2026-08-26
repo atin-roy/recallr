@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import type { Deck } from "@/lib/api";
 import styles from "./DeckStack.module.css";
 
@@ -67,16 +68,20 @@ export function DeckStack({
           />
         )}
         <div className={styles.top}>
-          <p className={styles.meta}>
-            Updated {dateFormat.format(new Date(deck.updatedAt))}
-          </p>
-          <div className={styles.name}>{deck.name}</div>
-          {deck.description && <p className={styles.desc}>{deck.description}</p>}
-          <p className={styles.countLine}>
-            <span className={styles.countPill}>
-              {deck.cardCount} card{deck.cardCount === 1 ? "" : "s"}
-            </span>
-          </p>
+          <Link href={`/decks/${deck.id}`} className={styles.topLink}>
+            <p className={styles.meta}>
+              Updated {dateFormat.format(new Date(deck.updatedAt))}
+            </p>
+            <div className={styles.name}>{deck.name}</div>
+            {deck.description && (
+              <p className={styles.desc}>{deck.description}</p>
+            )}
+            <p className={styles.countLine}>
+              <span className={styles.countPill}>
+                {deck.cardCount} card{deck.cardCount === 1 ? "" : "s"}
+              </span>
+            </p>
+          </Link>
 
           {deleteError && (
             <p className={styles.error} role="alert">
