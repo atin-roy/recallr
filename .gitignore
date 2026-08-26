@@ -1,8 +1,13 @@
 .idea/
 *.iml
 .vscode/
+# agent tooling, kept out of the repo
 .claude/
+.codex/
 .superpowers/
+CLAUDE.md
+AGENTS.md
+docs/superpowers/
 
 target/
 .env
