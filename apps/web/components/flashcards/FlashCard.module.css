@@ -1,0 +1,184 @@
+.scene {
+  perspective: 1200px;
+}
+.card {
+  position: relative;
+  display: grid;
+  transform-style: preserve-3d;
+  transition: transform 0.45s ease;
+}
+.flipped {
+  transform: rotateY(180deg);
+}
+.face {
+  grid-area: 1 / 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 200px;
+  padding: var(--space-6);
+  background: var(--cream);
+  border: var(--border-card);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-hard);
+  backface-visibility: hidden;
+}
+.back {
+  transform: rotateY(180deg);
+  /* Y-rotation mirrors the x-axis, so a negative offset lands bottom-right
+     like every other card once the face is showing. */
+  box-shadow: -6px 6px 0 var(--ink);
+}
+.flipButton {
+  position: absolute;
+  inset: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  border-radius: var(--radius-card);
+}
+.flipButton:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+}
+.typeTag {
+  align-self: flex-start;
+  border: var(--border-thin);
+  border-radius: var(--radius-pill);
+  padding: 2px var(--space-3);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: var(--space-3);
+}
+.answerTag {
+  background: var(--paper);
+}
+.question {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  overflow-wrap: anywhere;
+}
+.answerBody {
+  overflow-wrap: anywhere;
+}
+.answerText {
+  font-size: 1rem;
+  font-weight: 600;
+}
+.answerNote {
+  margin-top: var(--space-3);
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+.clozeAnswer {
+  background: var(--yellow);
+  border-radius: var(--radius-sm);
+  padding: 0 var(--space-1);
+  font-weight: 700;
+}
+.optionList {
+  padding-left: 1.4em;
+  font-size: 0.95rem;
+}
+.optionList li + li {
+  margin-top: var(--space-1);
+}
+.correctOption {
+  font-weight: 700;
+}
+.correctOption::after {
+  content: " ✓";
+  color: var(--teal);
+}
+.pairList {
+  list-style: none;
+  padding: 0;
+  font-size: 0.95rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.pairArrow {
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+.error {
+  position: relative;
+  margin-top: var(--space-3);
+  color: var(--coral);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+.hint {
+  position: relative;
+  margin-top: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+}
+.actions {
+  position: relative;
+  display: flex;
+  gap: var(--space-3);
+  margin-top: auto;
+  padding-top: var(--space-4);
+}
+.action,
+.dangerAction {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  color: var(--color-text-muted);
+}
+.action:hover {
+  color: var(--ink);
+}
+.dangerAction {
+  color: var(--coral);
+}
+.action:disabled,
+.dangerAction:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* type tag fills */
+.lavender {
+  background: var(--lavender);
+}
+.sky {
+  background: var(--sky);
+}
+.mint {
+  background: var(--mint);
+}
+.yellow {
+  background: var(--yellow);
+}
+.rose {
+  background: var(--rose);
+}
+.peach {
+  background: var(--peach);
+}
+.teal {
+  background: var(--teal);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition: none;
+  }
+}
