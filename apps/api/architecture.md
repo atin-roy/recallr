@@ -7,7 +7,7 @@ This repository is a Spring Boot REST API for Recallr, a study/knowledge applica
 - Application entrypoint: `src/main/java/com/atinroy/recallr/ApiApplication.java`
 - HTTP base path: `/api/v1` via `spring.mvc.servlet.path` in `src/main/resources/application.yaml`
 - Main framework: Spring Boot 4.1, Spring MVC, Spring Security, Spring Data JPA, Flyway
-- Database: PostgreSQL, with schema managed by Flyway migration `src/main/resources/db/migration/V1__init_db.sql`
+- Database: PostgreSQL, with schema managed by Flyway migrations in `src/main/resources/db/migration/` (currently `V1` through `V4`)
 - Authentication: stateless JWT access tokens plus persisted/rotated refresh tokens in an HttpOnly cookie
 
 ## Directory/package structure
@@ -22,7 +22,7 @@ src/main/java/com/atinroy/recallr
 │   ├── notebook/                    # Notebook CRUD (user-owned)
 │   ├── deck/                        # Deck CRUD (optionally nested under a notebook)
 │   ├── note/                        # Note CRUD nested under notebooks, plus note-link model
-│   └── flashcard/                   # Unified flashcard hierarchy (BASIC and MCQ types)
+│   └── flashcard/                   # Unified flashcard hierarchy (all 7 card types)
 ├── global/                          # Global exception-to-HTTP mapping
 └── security/                        # Spring Security config, JWT filter, current-user provider
 ```
@@ -34,13 +34,21 @@ Tests are under `src/test/java/com/atinroy/recallr`, grouped by domain service: 
 ```
 User
 ├── Notebook          (user-owned; name, description)
-│   ├── Note          (belongs to Notebook — required; title, content, note-links)
+│   ├── Note          (belongs to Notebook, required; title, content, note-links)
 │   └── Deck          (optional: a deck can also be standalone)
 └── Deck              (user-owned; notebook FK nullable for standalone decks)
-    └── Flashcard     (abstract; SINGLE_TABLE inheritance)
-        ├── BasicFlashcard   (question, answer, reverse)
-        └── MCQFlashcard     (question, options[], correctOptionIndex, explanation)
+    └── Flashcard         (abstract; SINGLE_TABLE inheritance; every subtype has `question`)
+        ├── BasicFlashcard        (answer, reverse)
+        ├── MCQFlashcard          (options[], correctOptionIndex, explanation)
+        ├── ClozeFlashcard        (answers[], ordered)
+        ├── TrueFalseFlashcard    (correctAnswer, explanation)
+        ├── MatchingFlashcard     (pairs[] of prompt/matchValue, ordered)
+        ├── OrderingFlashcard     (items[], ordered)
+        └── ShortAnswerFlashcard  (modelAnswer)
 ```
+
+Notebook names are unique per user, case-insensitively (see `V4__notebook_name_unique.sql`), and
+a notebook carries an optional `color`. `DeckResponse` exposes a derived `cardCount`.
 
 ## Core components and responsibilities
 
@@ -85,8 +93,8 @@ Each main domain follows a controller → service → repository → mapper patt
   - DTO: `UserResponse`
   - Mapper: `UserMapper`
 - `domain/notebook/`
-  - Entity: `Notebook`
-  - Notebooks belong to a `User`.
+  - Entity: `Notebook` (name, description, optional `color`)
+  - Notebooks belong to a `User`; names are unique per user, case-insensitively, enforced both by `NotebookRepository.existsByUserIdAndNameIgnoreCase*` and by a database unique index on `(user_id, lower(name))`.
   - Controller/service/repository/mapper for notebook CRUD.
 - `domain/deck/`
   - Entity: `Deck`
@@ -99,7 +107,9 @@ Each main domain follows a controller → service → repository → mapper patt
   - `NoteLinkService` creates/updates/deletes links between notes. There is no `NoteLinkController`; note-link management is intentionally not yet exposed via HTTP.
 - `domain/flashcard/`
   - Abstract entity: `Flashcard` (SINGLE_TABLE inheritance, discriminator column `type`)
-  - Subtypes: `BasicFlashcard` (question, answer, reverse), `MCQFlashcard` (question, options[], correctOptionIndex, explanation)
+  - Discriminator values: `BASIC`, `MCQ`, `CLOZE`, `TRUE_FALSE`, `MATCHING`, `ORDERING`, `SHORT_ANSWER`
+  - Ordered collections (`answers`, `pairs`, `items`) use `@ElementCollection` with an `@OrderColumn`, so authoring order round-trips.
+  - Each subtype has its own request/update/response DTO trio under `dto/`, joined by the sealed-in-practice `FlashcardRequest` / `FlashcardUpdateRequest` / `FlashcardResponse` Jackson polymorphic bases.
   - All flashcard types are managed through a single unified controller/service under `/decks/{deckId}/flashcards`.
 
 ### Shared/common components
@@ -161,10 +171,10 @@ Routes: `/api/v1/notebooks`, `/api/v1/notebooks/{notebookId}`
 ### Deck flow
 
 Routes:
-- `POST /api/v1/notebooks/{notebookId}/decks` — create a deck inside a notebook
-- `GET /api/v1/notebooks/{notebookId}/decks` — list decks in a notebook
-- `POST /api/v1/decks` — create a standalone deck
-- `GET/PUT/DELETE /api/v1/decks/{deckId}` — standalone deck operations
+- `POST /api/v1/notebooks/{notebookId}/decks` creates a deck inside a notebook
+- `GET /api/v1/notebooks/{notebookId}/decks` lists decks in a notebook
+- `POST /api/v1/decks` creates a standalone deck
+- `GET/PUT/DELETE /api/v1/decks/{deckId}` for standalone deck operations
 
 - `DeckController` handles both notebook-nested and standalone routes in a single controller without a common `@RequestMapping` prefix.
 - `DeckService` verifies notebook ownership (when creating inside a notebook) via `NotebookRepository.findByIdAndUserId()`, and deck ownership via `DeckRepository.findByIdAndUserId()` for all other operations.
@@ -189,7 +199,7 @@ Routes: `/api/v1/decks/{deckId}/flashcards`, `/api/v1/decks/{deckId}/flashcards/
 
 ### Flashcard design decision: SINGLE_TABLE inheritance
 
-All flashcard types (`BASIC`, `MCQ`, and future types) live in one `flashcards` table with a `type` discriminator column. Type-specific fields are nullable for other types. This was chosen because the dominant access pattern — listing all cards in a deck — is a free single-table query with no joins. New types require a small migration (adding columns) but keep full JPA type safety. Jackson `@JsonTypeInfo` polymorphism on the `type` field gives a unified API (`/decks/{deckId}/flashcards`) that returns mixed types in one list.
+All seven flashcard types live in one `flashcards` table with a `type` discriminator column. Type-specific fields are nullable for other types. This was chosen because the dominant access pattern (listing all cards in a deck) is a free single-table query with no joins. New types require a small migration (adding columns) but keep full JPA type safety. Jackson `@JsonTypeInfo` polymorphism on the `type` field gives a unified API (`/decks/{deckId}/flashcards`) that returns mixed types in one list.
 
 ## Configuration and environment setup
 
@@ -238,13 +248,13 @@ All flashcard types (`BASIC`, `MCQ`, and future types) live in one `flashcards` 
 - Port: `5432`
 - Persistent volume: `postgres_data`
 
-No datasource URL/username/password is explicitly shown in `application.yaml`; Spring Boot Docker Compose support may provide connection details locally. If running without Docker Compose integration, datasource configuration may need to be supplied externally.
+No datasource URL/username/password appears in `application.yaml`: Spring Boot Docker Compose support derives them from `docker-compose.yaml` at runtime. That dependency is `runtime`-scoped, so it does not apply during tests, which is why `ApiApplicationTests` sets the datasource explicitly via `@TestPropertySource`. Any non-local profile must supply datasource configuration itself.
 
 ## Persistence / external services / integrations
 
 ### Database schema
 
-Flyway migration `V1__init_db.sql` creates:
+`V1__init_db.sql` creates:
 
 - `users`
 - `user_providers`
@@ -265,6 +275,12 @@ Important relationships:
 - `note_links` links notes by source and target, unique on `(source_note_id, target_note_id)`
 - `flashcards` uses SINGLE_TABLE inheritance; the `type` column (`VARCHAR(31)`) discriminates subtypes. `flashcard_options` stores MCQ option strings as a collection table.
 
+Later migrations:
+
+- `V2__flashcard_new_types.sql` adds the `correct_answer` and `model_answer` columns for TRUE_FALSE and SHORT_ANSWER, and the ordered collection tables `flashcard_cloze_answers`, `flashcard_matching_pairs`, and `flashcard_ordering_items`.
+- `V3__notebook_color.sql` adds `notebooks.color`.
+- `V4__notebook_name_unique.sql` trims and de-duplicates existing notebook names, then adds the unique index `uk_notebooks_user_name` on `(user_id, lower(name))`.
+
 ### External integrations
 
 - PostgreSQL is the only concrete external runtime dependency visible in configuration.
@@ -279,8 +295,9 @@ Tests are primarily service-level unit tests with Mockito:
 - `DeckServiceTest` covers notebook-nested and standalone deck creation, deck CRUD, parent notebook resolution, and exceptions.
 - `NoteServiceTest` covers note CRUD, notebook ownership validation, and not-found cases.
 - `NoteLinkServiceTest` covers link creation/update/delete and note/link not-found cases.
-- `FlashcardServiceTest` covers flashcard CRUD for both `BASIC` and `MCQ` types, deck ownership validation, and not-found cases.
-- `ApiApplicationTests` is a Spring Boot context-load test (requires a live PostgreSQL instance).
+- `FlashcardServiceTest` covers flashcard CRUD, deck ownership validation, and not-found cases.
+- `FlashcardMapperTest` covers request-to-entity and entity-to-response mapping for all seven card types.
+- `ApiApplicationTests` is a Spring Boot context-load test; it needs the compose PostgreSQL running (`docker compose up -d`).
 
 The tests map directly to service classes rather than controller integration tests. No repository integration tests or end-to-end HTTP/security tests were found in the inspected tree.
 
@@ -300,7 +317,7 @@ The tests map directly to service classes rather than controller integration tes
 
 ## Unknowns / ambiguities
 
-- `NoteLinkService` has no matching controller; note-link API endpoints are not yet exposed via HTTP. This is intentional — the service layer exists but the HTTP surface is deferred.
+- `NoteLinkService` has no matching controller; note-link API endpoints are not yet exposed via HTTP. This is intentional: the service layer exists but the HTTP surface is deferred.
 - Spring Mail is included but unused in the inspected source.
 - External OAuth providers are modeled but not implemented in controllers/services.
 - Production environment configuration is not present; JWT secret, datasource settings, secure cookie settings, and CORS origins likely need environment-specific overrides.
@@ -308,4 +325,4 @@ The tests map directly to service classes rather than controller integration tes
 
 ## Onboarding summary
 
-Start with `ApiApplication.java`, then read `SecurityConfig` and `JwtAuthenticationFilter` to understand how every request is authenticated. For domain behavior, follow the pattern used by `NotebookController` → `NotebookService` → `NotebookRepository` → `NotebookMapper`; decks, notes, and flashcards use the same shape with additional parent-resource ownership checks. Persistence is defined by JPA entities and validated against the Flyway schema in `V1__init_db.sql`. Service tests under `src/test/java` are the best executable documentation for domain rules and exception behavior.
+Start with `ApiApplication.java`, then read `SecurityConfig` and `JwtAuthenticationFilter` to understand how every request is authenticated. For domain behavior, follow the pattern used by `NotebookController` → `NotebookService` → `NotebookRepository` → `NotebookMapper`; decks, notes, and flashcards use the same shape with additional parent-resource ownership checks. Persistence is defined by JPA entities and validated against the Flyway schema in `db/migration/`. Service tests under `src/test/java` are the best executable documentation for domain rules and exception behavior.
