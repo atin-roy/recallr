@@ -1,0 +1,288 @@
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-2);
+}
+.heading {
+  font-size: 2.1rem;
+  font-weight: 800;
+}
+.countLine {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  margin-top: var(--space-1);
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-6);
+}
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-6);
+  min-height: 196px;
+  overflow: hidden;
+}
+.cardMeta {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--color-text-soft);
+  margin-bottom: var(--space-3);
+}
+.name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.desc {
+  margin-top: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.formCard {
+  padding: var(--space-6);
+  margin-bottom: var(--space-6);
+  max-width: 480px;
+}
+.formLabel {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-4);
+}
+.formFields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.swatchGroup {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.swatchLegend {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--color-text-muted);
+  padding: 0;
+  margin-bottom: var(--space-2);
+}
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+.swatch {
+  position: relative;
+  cursor: pointer;
+}
+.swatchInput {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+.swatchChip {
+  display: block;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--ink);
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+.swatchInput:checked + .swatchChip {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hard-sm);
+}
+.swatchInput:focus-visible + .swatchChip {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+}
+.lavender {
+  background: var(--lavender);
+}
+.teal {
+  background: var(--teal);
+}
+.yellow {
+  background: var(--yellow);
+}
+.mint {
+  background: var(--mint);
+}
+.coral {
+  background: var(--coral);
+}
+.sky {
+  background: var(--sky);
+}
+.rose {
+  background: var(--rose);
+}
+.peach {
+  background: var(--peach);
+}
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.formError {
+  margin-top: var(--space-3);
+  color: var(--coral);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.formActions {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-8) 0;
+  text-align: center;
+}
+.emptyTitle {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+.state {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--color-text-muted);
+  padding: var(--space-8) 0;
+  text-align: center;
+}
+.errorCard {
+  padding: var(--space-6);
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+.errorTitle {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+.errorText {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .swatchChip {
+    transition: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.cardLink {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  flex: 1;
+  min-width: 0;
+}
+/* Stretch the link over the whole card so the card is clickable, while the
+   action buttons stay above it and keep their own hit area. */
+.cardLink::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+.cardError {
+  position: relative;
+  margin-top: var(--space-3);
+  color: var(--coral);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+.cardHint {
+  position: relative;
+  margin-top: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+}
+.actions {
+  position: relative;
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+.action,
+.dangerAction {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  color: var(--color-text-muted);
+}
+.action:hover {
+  color: var(--ink);
+}
+.dangerAction {
+  color: var(--coral);
+}
+.action:disabled,
+.dangerAction:disabled {
+  opacity: 0.6;
+  cursor: default;
+}

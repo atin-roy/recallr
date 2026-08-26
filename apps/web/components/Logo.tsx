@@ -1,17 +1,11 @@
-export function Logo() {
+import { LogoMark } from "./LogoMark";
+import styles from "./Logo.module.css";
+
+export function Logo({ size = "md" }: { size?: "md" | "lg" }) {
   return (
-    <span
-      className="inline-flex items-baseline text-2xl tracking-tight text-white"
-      style={{ fontFamily: "var(--font-raleway)", fontWeight: 800 }}
-    >
-      reca
-      <span
-        className="text-violet-400"
-        style={{ fontFamily: "var(--font-archivo-black)", fontWeight: 400 }}
-      >
-        ll
-      </span>
-      r
+    <span className={`${styles.logo} ${size === "lg" ? styles.lg : ""}`}>
+      <LogoMark size={size === "lg" ? 44 : 32} />
+      <span className={styles.wordmark}>recallr</span>
     </span>
   );
 }

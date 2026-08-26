@@ -1,0 +1,22 @@
+.card {
+  background: var(--cream);
+  border: var(--border-card);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-hard);
+}
+.interactive {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.interactive:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hard-xl);
+}
+.cream { background: var(--cream); }
+.lavender { background: var(--lavender); }
+.teal { background: var(--teal); }
+.yellow { background: var(--yellow); }
+.mint { background: var(--mint); }
+.coral { background: var(--coral); }
+.sky { background: var(--sky); }
+.rose { background: var(--rose); }
+.peach { background: var(--peach); }

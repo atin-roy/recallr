@@ -1,6 +1,6 @@
 package com.atinroy.recallr.auth.dto;
 
-import com.atinroy.recallr.user.dto.UserResponse;
+import com.atinroy.recallr.domain.user.dto.UserResponse;
 
 /**
  * Internal result of a login or token-refresh operation.

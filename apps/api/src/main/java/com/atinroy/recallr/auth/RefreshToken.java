@@ -1,7 +1,6 @@
 package com.atinroy.recallr.auth;
 
 import com.atinroy.recallr.common.BaseEntity;
-import com.atinroy.recallr.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

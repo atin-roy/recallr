@@ -1,0 +1,165 @@
+.formCard {
+  padding: var(--space-6);
+  margin-bottom: var(--space-6);
+  max-width: 560px;
+}
+.formLabel {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-4);
+}
+.formFields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.choiceGroup {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.choiceLegend {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--color-text-muted);
+  padding: 0;
+  margin-bottom: var(--space-2);
+}
+.choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.choice {
+  position: relative;
+  cursor: pointer;
+}
+.choiceInput {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+.choiceChip {
+  display: inline-block;
+  border: var(--border-thin);
+  border-radius: var(--radius-pill);
+  padding: 4px var(--space-3);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: var(--paper);
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.08s ease;
+}
+.choiceInput:checked + .choiceChip {
+  background: var(--yellow);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hard-xs);
+}
+.choiceInput:focus-visible + .choiceChip {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+}
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--blue);
+}
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.row {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+}
+.rowField {
+  flex: 1;
+  min-width: 0;
+}
+.correctRadio {
+  margin-bottom: var(--space-3);
+  width: 16px;
+  height: 16px;
+  accent-color: var(--blue);
+  cursor: pointer;
+}
+.removeRow {
+  background: none;
+  border: 0;
+  padding: 0;
+  margin-bottom: var(--space-3);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+.removeRow:hover {
+  color: var(--coral);
+}
+.removeRow:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.addRow {
+  align-self: flex-start;
+  background: none;
+  border: 0;
+  padding: 0;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--blue);
+  cursor: pointer;
+}
+.fieldNote {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+.formWarning {
+  margin-top: var(--space-3);
+  color: var(--color-text-soft);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+.formError {
+  margin-top: var(--space-3);
+  color: var(--coral);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.formActions {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .choiceChip {
+    transition: none;
+  }
+}

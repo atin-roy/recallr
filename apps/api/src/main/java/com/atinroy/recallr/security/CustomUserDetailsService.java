@@ -1,9 +1,9 @@
 package com.atinroy.recallr.security;
 
-import com.atinroy.recallr.user.IdentityProvider;
-import com.atinroy.recallr.user.User;
-import com.atinroy.recallr.user.UserProvider;
-import com.atinroy.recallr.user.UserRepository;
+import com.atinroy.recallr.domain.user.IdentityProvider;
+import com.atinroy.recallr.domain.user.User;
+import com.atinroy.recallr.domain.user.UserProvider;
+import com.atinroy.recallr.domain.user.UserRepository;
 import org.jspecify.annotations.NonNull;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

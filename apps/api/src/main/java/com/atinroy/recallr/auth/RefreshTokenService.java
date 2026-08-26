@@ -100,6 +100,7 @@ public class RefreshTokenService {
         }
 
         if (Instant.now().isAfter(refreshToken.get().getExpiresAt())) {
+            revokeToken(refreshToken.get());
             throw new InvalidTokenException("Refresh token has expired");
         }
 

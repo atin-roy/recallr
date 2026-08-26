@@ -1,6 +1,6 @@
 package com.atinroy.recallr.security;
 
-import com.atinroy.recallr.user.User;
+import com.atinroy.recallr.domain.user.User;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

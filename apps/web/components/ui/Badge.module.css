@@ -1,0 +1,12 @@
+.badge {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.3px;
+  background: var(--cream);
+  border: var(--border-thin);
+  border-radius: var(--radius-pill);
+  padding: 4px 11px;
+  box-shadow: var(--shadow-hard-xs);
+}
