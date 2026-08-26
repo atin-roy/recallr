@@ -28,6 +28,8 @@ class NoteLinkServiceTest {
     private NoteRepository noteRepository;
     @Mock
     private NoteLinkRepository noteLinkRepository;
+    @Mock
+    private NoteLinkMapper noteLinkMapper;
 
     @InjectMocks
     private NoteLinkService noteLinkService;
@@ -53,6 +55,8 @@ class NoteLinkServiceTest {
         savedLink.setSource(sourceNote);
         savedLink.setTarget(targetNote);
         when(noteLinkRepository.save(any(NoteLink.class))).thenReturn(savedLink);
+        when(noteLinkMapper.toResponse(savedLink)).thenReturn(
+                new NoteLinkResponse(savedLink.getId(), sourceNote.getId(), targetNote.getId()));
 
         NoteLinkRequest request = new NoteLinkRequest(sourceNote.getId().toString(), targetNote.getId().toString());
         NoteLinkResponse response = noteLinkService.createNoteLink(request);
@@ -95,6 +99,8 @@ class NoteLinkServiceTest {
         when(noteRepository.findByIdAndUserId(sourceNote.getId(), user.getId())).thenReturn(Optional.of(sourceNote));
         when(noteRepository.findByIdAndUserId(targetNote.getId(), user.getId())).thenReturn(Optional.of(targetNote));
         when(noteLinkRepository.save(existingLink)).thenReturn(existingLink);
+        when(noteLinkMapper.toResponse(existingLink)).thenReturn(
+                new NoteLinkResponse(existingLink.getId(), sourceNote.getId(), targetNote.getId()));
 
         NoteLinkRequest request = new NoteLinkRequest(sourceNote.getId().toString(), targetNote.getId().toString());
         NoteLinkResponse response = noteLinkService.updateNoteLink(existingLink.getId(), request);
