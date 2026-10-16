@@ -2,6 +2,7 @@ package com.atinroy.recallr.domain.flashcard.dto;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,5 +19,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public abstract class FlashcardUpdateRequest {
+    @NotBlank
     private String question;
 }
