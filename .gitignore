@@ -7,7 +7,7 @@
 .superpowers/
 CLAUDE.md
 AGENTS.md
-docs/superpowers/
+temp-docs/
 
 target/
 .env
@@ -16,3 +16,7 @@ target/
 
 .plans/
 apps/api/src/main/resources/application-local.yaml
+
+# repowise owner-digest key (local)
+.repowise/events.key
+.repowise/.env
