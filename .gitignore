@@ -1,22 +1,10 @@
 .idea/
 *.iml
 .vscode/
-# agent tooling, kept out of the repo
-.claude/
-.codex/
-.superpowers/
-CLAUDE.md
-AGENTS.md
-temp-docs/
 
 target/
 .env
 .env.*
 !.env.example
 
-.plans/
 apps/api/src/main/resources/application-local.yaml
-
-# repowise owner-digest key (local)
-.repowise/events.key
-.repowise/.env
